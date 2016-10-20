@@ -197,7 +197,7 @@ public class EbicsClient {
         try {
             User user = new User(partner, userId, name, email, country, organization,
                 createPasswordCallback(password));
-            //createUserDirectories(user);
+
             /*if (saveCertificates) {
                 user.saveUserCertificates(configuration.getKeystoreDirectory(user));
             }*/
@@ -205,7 +205,7 @@ public class EbicsClient {
             byte[] partnerObj = configuration.getSerializationManager().serialize(partner);
             byte[] userObj = configuration.getSerializationManager().serialize(user);
             
-            //createLetters(user, useCertificates);
+
             users.put(userId, user);
             partners.put(partner.getPartnerId(), partner);
             banks.put(bank.getHostId(), bank);
@@ -266,9 +266,22 @@ public class EbicsClient {
                 user = (User) input.readObject();
             }
             
-            users.put(user.getUserId(), user);
-            partners.put(partner.getPartnerId(), partner);
-            banks.put(bank.getHostId(), bank);
+            
+            
+            if (!users.containsKey(user.getUserId())) {
+                users.put(user.getUserId(), user);
+            }
+            
+            if (!partners.containsKey(partner.getPartnerId())) {
+            	partners.put(partner.getPartnerId(), partner);
+            }
+            
+            if (!banks.containsKey(bank.getHostId())) {
+            	banks.put(bank.getHostId(), bank);
+            }
+
+            
+            
             
             configuration.getLogger().info(
                 Messages.getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
@@ -280,6 +293,9 @@ public class EbicsClient {
         }
     }
 
+    
+    
+    
     /**
      * Sends an INI request to the ebics bank server
      *
@@ -506,31 +522,14 @@ public class EbicsClient {
                 Messages.getString("app.quit.error", Constants.APPLICATION_BUNDLE_NAME));
         }
 
-        clearTraces();
-    }
-
-    public void clearTraces() {
         configuration.getLogger().info(
-            Messages.getString("app.cache.clear", Constants.APPLICATION_BUNDLE_NAME));
-        configuration.getTraceManager().clear();
+                Messages.getString("app.cache.clear", Constants.APPLICATION_BUNDLE_NAME));
+            configuration.getTraceManager().clear();
     }
 
 
-
-    private static CommandLine parseArguments(Options options, String[] args) throws ParseException {
-        CommandLineParser parser = new DefaultParser();
-        options.addOption(null, "help", false, "Print this help text");
-        CommandLine line = parser.parse(options, args);
-        if (line.hasOption("help")) {
-            HelpFormatter formatter = new HelpFormatter();
-            System.out.println();
-            formatter.printHelp(EbicsClient.class.getSimpleName(), options);
-            System.out.println();
-            System.exit(0);
-        }
-        return line;
-    }
-
+    
+    
     public static EbicsClient createEbicsClient(String language, String country, String productName) throws FileNotFoundException,
         IOException {
 
@@ -548,7 +547,7 @@ public class EbicsClient {
 
         Product product = new Product(productName, language, null);
 
-        client.setDefaultProduct(product);
+        client.defaultProduct = product;
 
         return client;
     }
@@ -567,12 +566,9 @@ public class EbicsClient {
         return pwdHandler;
     }
 
-    private void setDefaultProduct(Product product) {
-        this.defaultProduct = product;
-    }
 
     public static void main(String[] args) throws Exception {
-        Options options = new Options();
+        /*Options options = new Options();
         options.addOption(null, "ini", false, "Send INI request");
         options.addOption(null, "hia", false, "Send HIA request");
         options.addOption(null, "hbp", false, "Send HPB request");
@@ -658,6 +654,6 @@ public class EbicsClient {
             }
         }
 
-        client.quit();
+        client.quit();*/
     }
 }
