@@ -319,8 +319,12 @@ public class EbicsClient {
      *            the application product
      * @throws Exception
      */
-    public void sendINIRequest(User user, Product product) throws Exception {
-        String userId = user.getUserId();
+    public void sendINIRequest(String userId) throws Exception {
+    	if(!users.containsKey(userId)) {
+    		throw new EbicsException("User not found");
+    	}
+    	
+		User user = users.get(userId);
         configuration.getLogger().info(
             Messages.getString("ini.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
         if (user.isInitialized()) {
@@ -329,7 +333,7 @@ public class EbicsClient {
                     userId));
             return;
         }
-        EbicsSession session = createSession(user, product);
+        EbicsSession session = createSession(user, this.defaultProduct);
         KeyManagement keyManager = new KeyManagement(session);
 
         try {
@@ -353,8 +357,12 @@ public class EbicsClient {
      *            the application product.
      * @throws Exception
      */
-    public void sendHIARequest(User user, Product product) throws Exception {
-        String userId = user.getUserId();
+    public void sendHIARequest(String userId) throws Exception {
+    	if(!users.containsKey(userId)) {
+    		throw new EbicsException("User not found");
+    	}
+    	
+		User user = users.get(userId);
         configuration.getLogger().info(
             Messages.getString("hia.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
         if (user.isInitializedHIA()) {
@@ -363,7 +371,7 @@ public class EbicsClient {
                     Constants.APPLICATION_BUNDLE_NAME, userId));
             return;
         }
-        EbicsSession session = createSession(user, product);
+        EbicsSession session = createSession(user, this.defaultProduct);
         KeyManagement keyManager = new KeyManagement(session);
 
         try {
@@ -381,12 +389,16 @@ public class EbicsClient {
     /**
      * Sends a HPB request to the ebics server.
      */
-    public void sendHPBRequest(User user, Product product) throws Exception {
-        String userId = user.getUserId();
+    public void sendHPBRequest(String userId) throws Exception {
+    	if(!users.containsKey(userId)) {
+    		throw new EbicsException("User not found");
+    	}
+    	
+		User user = users.get(userId);
         configuration.getLogger().info(
             Messages.getString("hpb.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
 
-        EbicsSession session = createSession(user, product);
+        EbicsSession session = createSession(user, this.defaultProduct);
         KeyManagement keyManager = new KeyManagement(session);
 
 
@@ -410,13 +422,17 @@ public class EbicsClient {
      *            the session product
      * @throws Exception
      */
-    public void revokeSubscriber(User user, Product product) throws Exception {
-        String userId = user.getUserId();
+    public void revokeSubscriber(String userId) throws Exception {
+    	if(!users.containsKey(userId)) {
+    		throw new EbicsException("User not found");
+    	}
+    	
+		User user = users.get(userId);
 
         configuration.getLogger().info(
             Messages.getString("spr.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
 
-        EbicsSession session = createSession(user, product);
+        EbicsSession session = createSession(user, this.defaultProduct);
         KeyManagement keyManager = new KeyManagement(session);
 
         try {
@@ -435,8 +451,14 @@ public class EbicsClient {
      * Sends a file to the ebics bank server
      * @throws Exception
      */
-    public void sendFile(File file, User user, Product product, OrderType orderType) throws Exception {
-        EbicsSession session = createSession(user, product);
+    public void sendFile(byte[] fileContent, String userId, OrderType orderType) throws Exception {
+    	if(!users.containsKey(userId)) {
+    		throw new EbicsException("User not found");
+    	}
+    	
+		User user = users.get(userId);
+    	
+        EbicsSession session = createSession(user, this.defaultProduct);
         String format = null;
         String orderAttribute = "DZHNN";
 
@@ -449,24 +471,29 @@ public class EbicsClient {
         if (format != null) {
             session.addSessionParam("FORMAT", format);
         }
-//         session.addSessionParam("TEST", "true");
-//         session.addSessionParam("EBCDIC", "false");
+
         FileTransfer transferManager = new FileTransfer(session);
 
         try {
-            transferManager.sendFile(IOUtils.getFileContent(file), orderType, orderAttribute);
+            transferManager.sendFile(fileContent, orderType, orderAttribute);
         } catch (IOException | EbicsException e) {
             configuration.getLogger().error(
                 Messages.getString("upload.file.error", Constants.APPLICATION_BUNDLE_NAME,
-                    file.getAbsolutePath()), e);
+                    ""), e);
             throw e;
         }
     }
 
-    public void fetchFile(File file, User user, Product product, OrderType orderType,
+    public byte[] fetchFile(String userId, OrderType orderType,
         boolean isTest, Date start, Date end) throws IOException, EbicsException {
+    	if(!users.containsKey(userId)) {
+    		throw new EbicsException("User not found");
+    	}
+    	
+		User user = users.get(userId);
+    	
         FileTransfer transferManager;
-        EbicsSession session = createSession(user, product);
+        EbicsSession session = createSession(user, this.defaultProduct);
         session.addSessionParam("FORMAT", "pain.xxx.cfonb160.dct");
         if (isTest) {
             session.addSessionParam("TEST", "true");
@@ -475,7 +502,7 @@ public class EbicsClient {
 
 
         try {
-            transferManager.fetchFile(orderType, start, end, file);
+            return transferManager.fetchFile(orderType, start, end);
         } catch (Exception e) {
             configuration.getLogger().error(
                 Messages.getString("download.file.error", Constants.APPLICATION_BUNDLE_NAME), e);
@@ -483,9 +510,9 @@ public class EbicsClient {
         }
     }
 
-    public void fetchFile(File file, OrderType orderType, Date start, Date end) throws IOException,
+    public byte[] fetchFile(String userId, OrderType orderType, Date start, Date end) throws IOException,
         EbicsException {
-        fetchFile(file, defaultUser, defaultProduct, orderType, false, start, end);
+        return fetchFile(userId, orderType, false, start, end);
     }
 
     /**
