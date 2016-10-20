@@ -331,8 +331,7 @@ public class EbicsClient {
         }
         EbicsSession session = createSession(user, product);
         KeyManagement keyManager = new KeyManagement(session);
-        configuration.getTraceManager().setTraceDirectory(
-            configuration.getTransferTraceDirectory(user));
+
         try {
             keyManager.sendINI(null);
             user.setInitialized(true);
@@ -366,8 +365,7 @@ public class EbicsClient {
         }
         EbicsSession session = createSession(user, product);
         KeyManagement keyManager = new KeyManagement(session);
-        configuration.getTraceManager().setTraceDirectory(
-            configuration.getTransferTraceDirectory(user));
+
         try {
             keyManager.sendHIA(null);
             user.setInitializedHIA(true);
@@ -391,8 +389,6 @@ public class EbicsClient {
         EbicsSession session = createSession(user, product);
         KeyManagement keyManager = new KeyManagement(session);
 
-        configuration.getTraceManager().setTraceDirectory(
-            configuration.getTransferTraceDirectory(user));
 
         try {
             keyManager.sendHPB();
@@ -422,9 +418,6 @@ public class EbicsClient {
 
         EbicsSession session = createSession(user, product);
         KeyManagement keyManager = new KeyManagement(session);
-
-        configuration.getTraceManager().setTraceDirectory(
-            configuration.getTransferTraceDirectory(user));
 
         try {
             keyManager.lockAccess();
@@ -460,9 +453,6 @@ public class EbicsClient {
 //         session.addSessionParam("EBCDIC", "false");
         FileTransfer transferManager = new FileTransfer(session);
 
-        configuration.getTraceManager().setTraceDirectory(
-            configuration.getTransferTraceDirectory(user));
-
         try {
             transferManager.sendFile(IOUtils.getFileContent(file), orderType, orderAttribute);
         } catch (IOException | EbicsException e) {
@@ -483,8 +473,6 @@ public class EbicsClient {
         }
         transferManager = new FileTransfer(session);
 
-        configuration.getTraceManager().setTraceDirectory(
-            configuration.getTransferTraceDirectory(user));
 
         try {
             transferManager.fetchFile(orderType, start, end, file);
@@ -504,47 +492,15 @@ public class EbicsClient {
      * Performs buffers save before quitting the client application.
      */
     public void quit() {
-        try {
-            for (User user : users.values()) {
-                if (user.needsSave()) {
-                    configuration.getLogger().info(
-                        Messages.getString("app.quit.users", Constants.APPLICATION_BUNDLE_NAME,
-                            user.getUserId()));
-                    configuration.getSerializationManager().serialize(user);
-                }
-            }
-
-            for (Partner partner : partners.values()) {
-                if (partner.needsSave()) {
-                    configuration.getLogger().info(
-                        Messages.getString("app.quit.partners", Constants.APPLICATION_BUNDLE_NAME,
-                            partner.getPartnerId()));
-                    configuration.getSerializationManager().serialize(partner);
-                }
-            }
-
-            for (Bank bank : banks.values()) {
-                if (bank.needsSave()) {
-                    configuration.getLogger().info(
-                        Messages.getString("app.quit.banks", Constants.APPLICATION_BUNDLE_NAME,
-                            bank.getHostId()));
-                    configuration.getSerializationManager().serialize(bank);
-                }
-            }
-        } catch (EbicsException e) {
-            configuration.getLogger().info(
-                Messages.getString("app.quit.error", Constants.APPLICATION_BUNDLE_NAME));
-        }
-
-        configuration.getLogger().info(
-                Messages.getString("app.cache.clear", Constants.APPLICATION_BUNDLE_NAME));
-            configuration.getTraceManager().clear();
+    	this.users.clear();
+    	this.banks.clear();
+    	this.partners.clear();
     }
 
 
     
     
-    public static EbicsClient createEbicsClient(String language, String country, String productName) throws FileNotFoundException,
+    public static EbicsClient createEbicsClient(String language, String country, String productName, String traceDir) throws FileNotFoundException,
         IOException {
 
         final Locale locale = new Locale(language, country);
