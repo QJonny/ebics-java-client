@@ -220,13 +220,15 @@ public class EbicsClient {
         }
     }
     
-    public byte[] getUserCertificateFile(String userId) throws EbicsException, IOException, GeneralSecurityException{
+    public byte[] exportKeyStore(String userId) throws EbicsException, IOException, GeneralSecurityException{
     	if(!users.containsKey(userId)) {
     		throw new EbicsException("User not found");
     	}
     	
+		User user = users.get(userId);
+    	
     	try {
-			return users.get(userId).exportUserCertificates();
+			return user.exportUserCertificates();
 		} catch (GeneralSecurityException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -389,7 +391,7 @@ public class EbicsClient {
     /**
      * Sends a HPB request to the ebics server.
      */
-    public void sendHPBRequest(String userId) throws Exception {
+    public byte[] sendHPBRequest(String userId, byte[] keyStore) throws Exception {
     	if(!users.containsKey(userId)) {
     		throw new EbicsException("User not found");
     	}
@@ -403,9 +405,11 @@ public class EbicsClient {
 
 
         try {
-            keyManager.sendHPB();
+            byte[] updatedKeyStore = keyManager.sendHPB(keyStore);
             configuration.getLogger().info(
                 Messages.getString("hpb.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+            
+            return updatedKeyStore;
         } catch (Exception e) {
             configuration.getLogger().error(
                 Messages.getString("hpb.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);

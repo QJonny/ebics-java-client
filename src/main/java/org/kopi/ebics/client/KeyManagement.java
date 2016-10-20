@@ -20,6 +20,7 @@
 package org.kopi.ebics.client;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -122,37 +123,42 @@ public class KeyManagement {
    * @throws GeneralSecurityException data decryption error
    * @throws EbicsException server generated error message
    */
-  public void sendHPB() throws IOException, GeneralSecurityException, EbicsException {
+  public byte[] sendHPB(byte[] keyStore) throws IOException, GeneralSecurityException, EbicsException {
     HPBRequestElement			request;
     KeyManagementResponseElement	response;
     HttpRequestSender			sender;
     HPBResponseOrderDataElement		orderData;
     ContentFactory			factory;
     KeyStoreManager			keystoreManager;
-    String				path;
     RSAPublicKey			e002PubKey;
     RSAPublicKey			x002PubKey;
     int					httpCode;
+    ByteArrayOutputStream updateKeyStoreStream = new ByteArrayOutputStream();
 
     sender = new HttpRequestSender(session);
     request = new HPBRequestElement(session);
+    
     request.build();
     request.validate();
+    
     session.getConfiguration().getTraceManager().trace(request);
     httpCode = sender.send(new ByteArrayContentFactory(request.prettyPrint()));
     Utils.checkHttpCode(httpCode);
+    
     response = new KeyManagementResponseElement(sender.getResponseBody(), "HBPResponse");
     response.build();
     session.getConfiguration().getTraceManager().trace(response);
     response.report();
+    
     factory = new ByteArrayContentFactory(Utils.unzip(session.getUser().decrypt(response.getOrderData(), response.getTransactionKey())));
     orderData = new HPBResponseOrderDataElement(factory);
     orderData.build();
     session.getConfiguration().getTraceManager().trace(orderData);
+    
     keystoreManager = new KeyStoreManager();
-    path = session.getConfiguration().getKeystoreDirectory(session.getUser());
-    keystoreManager.load("" , session.getUser().getPasswordCallback().getPassword());
+    keystoreManager.load(keyStore , session.getUser().getPasswordCallback().getPassword());
 
+    
     if (session.getUser().getPartner().getBank().useCertificate())
     {
         e002PubKey = keystoreManager.getPublicKey(new ByteArrayInputStream(orderData.getBankE002Certificate()));
@@ -161,7 +167,7 @@ public class KeyManagement {
         session.getUser().getPartner().getBank().setDigests(KeyUtil.getKeyDigest(e002PubKey), KeyUtil.getKeyDigest(x002PubKey));
         keystoreManager.setCertificateEntry(session.getBankID() + "-E002", new ByteArrayInputStream(orderData.getBankE002Certificate()));
         keystoreManager.setCertificateEntry(session.getBankID() + "-X002", new ByteArrayInputStream(orderData.getBankX002Certificate()));
-        keystoreManager.save(new FileOutputStream(path + File.separator + session.getBankID() + ".p12"));
+        keystoreManager.save(updateKeyStoreStream);
     }
     else
     {
@@ -171,8 +177,10 @@ public class KeyManagement {
         session.getUser().getPartner().getBank().setDigests(KeyUtil.getKeyDigest(e002PubKey), KeyUtil.getKeyDigest(x002PubKey));
         //keystoreManager.setCertificateEntry(session.getBankID() + "-E002", new ByteArrayInputStream(orderData.getBankE002Certificate()));
         //keystoreManager.setCertificateEntry(session.getBankID() + "-X002", new ByteArrayInputStream(orderData.getBankX002Certificate()));
-        keystoreManager.save(new FileOutputStream(path + File.separator + session.getBankID() + ".p12"));
+        keystoreManager.save(updateKeyStoreStream);
     }
+    
+    return updateKeyStoreStream.toByteArray();
   }
 
   /**
