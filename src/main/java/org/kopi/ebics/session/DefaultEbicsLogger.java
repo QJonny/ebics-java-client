@@ -39,21 +39,12 @@ import org.kopi.ebics.interfaces.EbicsLogger;
 public class DefaultEbicsLogger implements EbicsLogger {
 
   /**
-   * Constructs a new ebics logger
-   */
-  public DefaultEbicsLogger() {
-    this(null);
-  }
-
-  /**
    * Constructs a new ebics logger with a given file
    * @param logFile the log file
    */
-  public DefaultEbicsLogger(File logFile) {
-    this.logFile = logFile;
+  public DefaultEbicsLogger() {
     logger = Logger.getLogger(DefaultEbicsLogger.class);
     consoleAppender = new ConsoleAppender();
-    fileAppender = new RollingFileAppender();
   }
 
   /**
@@ -70,21 +61,6 @@ public class DefaultEbicsLogger implements EbicsLogger {
     }
   }
 
-  /**
-   * Enables or disable the file logging
-   * @param enabled the file log state
-   */
-  public void setFileLoggingEnabled(boolean enabled) {
-    if (enabled) {
-      if (!logger.isAttached(fileAppender)) {
-	if (logFile != null) {
-	  addFileAppender();
-	}
-      }
-    } else {
-      removeFileAppender();
-    }
-  }
 
   /**
    * Adds the console appender to the current logger.
@@ -109,32 +85,7 @@ public class DefaultEbicsLogger implements EbicsLogger {
     }
   }
 
-  /**
-   * Adds the file appender to the current logger.
-   */
-  private void addFileAppender() {
-    PatternLayout		layout;
 
-    layout = new PatternLayout();
-    layout.setConversionPattern("%d %5p - %m%n");
-    fileAppender.setLayout(layout);
-    fileAppender.setAppend(true);
-    fileAppender.setFile(logFile.getAbsolutePath());
-    fileAppender.setImmediateFlush(true);
-    fileAppender.setMaxFileSize("5MB");
-    fileAppender.setMaxBackupIndex(1);
-    fileAppender.activateOptions();
-    logger.addAppender(fileAppender);
-  }
-
-  /**
-   * Removes the file appender from the current logger.
-   */
-  private void removeFileAppender() {
-    if (logger.isAttached(fileAppender)) {
-      logger.removeAppender(fileAppender);
-    }
-  }
 
   /**
    * Disables the log process
@@ -186,10 +137,7 @@ public class DefaultEbicsLogger implements EbicsLogger {
     }
   }
 
-  @Override
-  public void setLogFile(String logFile) {
-    this.logFile = new File(logFile);
-  }
+
 
   // --------------------------------------------------------------------
   // DATA MEMBERS
@@ -197,8 +145,6 @@ public class DefaultEbicsLogger implements EbicsLogger {
 
   private Logger 				logger;
   private ConsoleAppender			consoleAppender;
-  private RollingFileAppender			fileAppender;
-  private File					logFile;
 
   public static final int			ALL_LEVEL = Level.ALL_INT;
   public static final int			INFO_LEVEL = Level.INFO_INT;
