@@ -4,9 +4,12 @@
   <groupId>org.kopi</groupId>
   <artifactId>ebics</artifactId>
   <packaging>jar</packaging>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1.0</version>
   <name>ebics</name>
   <url>http://maven.apache.org</url>
+  <properties>
+    <mainClass>org.kopi.ebics.client.EbicsClient</mainClass>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.apache.xmlbeans</groupId>
@@ -113,8 +116,34 @@
    <configuration>
            <downloadSources>true</downloadSources>
            <downloadJavadocs>true</downloadJavadocs>
-           </configuration>
-       </plugin>
-    </plugins>
-  </build>
+   </configuration>
+</plugin>
+    <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+    <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+            <archive>
+                <manifest>
+                    <addClasspath>true</addClasspath>
+                    <classpathPrefix>lib/</classpathPrefix>
+                    <mainClass>${mainClass}</mainClass>
+                </manifest>
+            </archive>
+        </configuration>
+    </plugin>
+
+</plugins>
+</build>
 </project>
