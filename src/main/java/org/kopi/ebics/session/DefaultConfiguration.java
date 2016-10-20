@@ -97,14 +97,14 @@ public class DefaultConfiguration implements Configuration {
 
     isConfigFileLoad = true;
   }
-
+/*
   @Override
   public String getRootDirectory() {
     return rootDir;
-  }
+  }*/
 
   @Override
-  public void init() {
+  public void init() {/*
     //Create the root directory
     IOUtils.createDirectories(getRootDirectory());
     //Create the logs directory
@@ -120,10 +120,10 @@ public class DefaultConfiguration implements Configuration {
     //Create users directory
     IOUtils.createDirectories(getUsersDirectory());
 
-    logger.setLogFile(getLogDirectory() + File.separator + getLogFileName());
+    logger.setLogFile(getLogDirectory() + File.separator + getLogFileName());*/
     ((DefaultEbicsLogger)logger).setFileLoggingEnabled(true);
     ((DefaultEbicsLogger)logger).setLevel(DefaultEbicsLogger.ALL_LEVEL);
-    serializationManager.setSerializationDirectory(getSerializationDirectory());
+    //serializationManager.setSerializationDirectory(getSerializationDirectory());
     traceManager.setTraceEnabled(isTraceEnabled());
     letterManager = new DefaultLetterManager(getLocale());
   }
@@ -132,7 +132,7 @@ public class DefaultConfiguration implements Configuration {
   public Locale getLocale() {
     return Locale.FRANCE;
   }
-
+/*
   @Override
   public String getLogDirectory() {
     return rootDir + File.separator + getString("log.dir.name");
@@ -162,21 +162,6 @@ public class DefaultConfiguration implements Configuration {
   }
 
   @Override
-  public String getKeystoreDirectory(EbicsUser user) {
-    return getUserDirectory(user) + File.separator + getString("keystore.dir.name");
-  }
-
-  @Override
-  public String getTransferTraceDirectory(EbicsUser user) {
-    return getUserDirectory(user) + File.separator + getString("traces.dir.name");
-  }
-
-  @Override
-  public String getSerializationDirectory() {
-    return rootDir + File.separator + getString("serialization.dir.name");
-  }
-
-  @Override
   public String getSSLTrustedStoreDirectory() {
     return rootDir + File.separator + getString("ssltruststore.dir.name");
   }
@@ -191,11 +176,7 @@ public class DefaultConfiguration implements Configuration {
     return rootDir + File.separator + getString("sslbankcert.dir.name");
   }
 
-  @Override
-  public String getUsersDirectory() {
-    return rootDir + File.separator + getString("users.dir.name");
-  }
-
+*/
   @Override
   public SerializationManager getSerializationManager() {
     return serializationManager;
@@ -211,16 +192,7 @@ public class DefaultConfiguration implements Configuration {
     return letterManager;
   }
 
-  @Override
-  public String getLettersDirectory(EbicsUser user) {
-    return getUserDirectory(user) + File.separator + getString("letters.dir.name");
-  }
-
-  @Override
-  public String getUserDirectory(EbicsUser user) {
-    return getUsersDirectory() + File.separator + user.getUserId();
-  }
-
+  
   @Override
   public EbicsLogger getLogger() {
     return logger;

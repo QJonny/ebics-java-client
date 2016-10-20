@@ -31,28 +31,17 @@ import java.util.Locale;
 public interface Configuration {
 
   /**
-   * Returns the root directory of the client application.
-   * @return the root directory of the client application.
-   */
-  public String getRootDirectory();
-
-  /**
    * Returns the default log directory of the application.
    * @return the default log directory
    */
-  public String getLogDirectory();
+  //public String getLogDirectory();
 
   /**
    * Returns the default log file name of the application
    * @return the default log file name
    */
-  public String getLogFileName();
+  //public String getLogFileName();
 
-  /**
-   * Returns the EBICS configuration file.
-   * @return the EBICS configuration file.
-   */
-  public String getConfigurationFile();
 
   /**
    * Returns the property value of a given key from
@@ -60,54 +49,27 @@ public interface Configuration {
    * @param key the given key
    * @return the property value
    */
-  public String getProperty(String key);
+  //public String getProperty(String key);
 
-  /**
-   * Returns the directory path of the key store that contains
-   * bank and user certificates.
-   * @param the ebics user.
-   * @return the key store directory of a given user.
-   */
-  public String getKeystoreDirectory(EbicsUser user);
-
-  /**
-   * Returns the directory path that contains the traces
-   * XML transfer files.
-   * @param user the ebics user
-   * @return the transfer trace directory
-   */
-  public String getTransferTraceDirectory(EbicsUser user);
-
-  /**
-   * Returns the object serialization directory.
-   * @param user the ebics user
-   * @return the object serialization directory.
-   */
-  public String getSerializationDirectory();
 
   /**
    * Returns the SSL trusted store directory.
    * @return the SSL trusted store directory.
    */
-  public String getSSLTrustedStoreDirectory();
+  //public String getSSLTrustedStoreDirectory();
 
   /**
    * Return the SSL key store directory
    * @return the SSL key store directory
    */
-  public String getSSLKeyStoreDirectory();
+  //public String getSSLKeyStoreDirectory();
 
   /**
    * Returns the SSL bank server certificates.
    * @return the SSL bank server certificates.
    */
-  public String getSSLBankCertificates();
+  //public String getSSLBankCertificates();
 
-  /**
-   * Returns the users directory.
-   * @return the users directory.
-   */
-  public String getUsersDirectory();
 
   /**
    * Returns the Ebics client serialization manager.
@@ -127,17 +89,6 @@ public interface Configuration {
    */
   public LetterManager getLetterManager();
 
-  /**
-   * Returns the initializations letters directory.
-   * @return the initializations letters directory.
-   */
-  public String getLettersDirectory(EbicsUser user);
-
-  /**
-   * Returns the users directory.
-   * @return the users directory.
-   */
-  public String getUserDirectory(EbicsUser user);
 
   /**
    * Returns the client application logger.
