@@ -49,6 +49,7 @@ import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.interfaces.InitLetter;
 import org.kopi.ebics.interfaces.LetterManager;
 import org.kopi.ebics.interfaces.PasswordCallback;
+import org.kopi.ebics.interfaces.SerializationManager;
 import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.messages.Messages;
 import org.kopi.ebics.session.DefaultConfiguration;
@@ -64,8 +65,7 @@ import org.kopi.ebics.utils.Constants;
  *
  */
 public class EbicsClient {
-
-    private final Configuration configuration;
+	private final Configuration configuration;
     private final Map<String, User> users = new HashMap<>();
     private final Map<String, Partner> partners = new HashMap<>();
     private final Map<String, Bank> banks = new HashMap<>();
@@ -84,9 +84,9 @@ public class EbicsClient {
      *            the application configuration
      * @param properties
      */
-    public EbicsClient(Configuration configuration, ConfigProperties properties) {
+    public EbicsClient(Configuration configuration) {
         this.configuration = configuration;
-        this.properties = properties;
+
         Messages.setLocale(configuration.getLocale());
         configuration.getLogger().info(
             Messages.getString("init.configuration", Constants.APPLICATION_BUNDLE_NAME));
@@ -105,7 +105,7 @@ public class EbicsClient {
      * @param user
      *            the concerned user
      */
-    public void createUserDirectories(EbicsUser user) {
+    /*public void createUserDirectories(EbicsUser user) {
         configuration.getLogger().info(
             Messages.getString("user.create.directories", Constants.APPLICATION_BUNDLE_NAME,
                 user.getUserId()));
@@ -113,7 +113,7 @@ public class EbicsClient {
         IOUtils.createDirectories(configuration.getTransferTraceDirectory(user));
         IOUtils.createDirectories(configuration.getKeystoreDirectory(user));
         IOUtils.createDirectories(configuration.getLettersDirectory(user));
-    }
+    }*/
 
     /**
      * Creates a new EBICS bank with the data you should have obtained from the
@@ -149,6 +149,13 @@ public class EbicsClient {
         return partner;
     }
 
+    
+    public class UserObjects {
+    	public byte[] UserObj;
+    	public byte[] ParterObj;
+    	public byte[] BankObj;
+    }
+    
     /**
      * Creates a new ebics user and generates its certificates.
      *
@@ -180,40 +187,46 @@ public class EbicsClient {
      * @return
      * @throws Exception
      */
-    public User createUser(URL url, String bankName, String hostId, String partnerId,
-        String userId, String name, String email, String country, String organization,
-        boolean useCertificates, boolean saveCertificates, PasswordCallback passwordCallback)
+    public UserObjects createUser(String url, String bankName, String hostId, String partnerId,
+        String userId, String name, String email, String country, String organization, String password)
         throws Exception {
-        configuration.getLogger().info(
-            Messages.getString("user.create.info", Constants.APPLICATION_BUNDLE_NAME, userId));
 
-        Bank bank = createBank(url, bankName, hostId, useCertificates);
+
+        Bank bank = createBank(new URL(url), bankName, hostId, false);
         Partner partner = createPartner(bank, partnerId);
         try {
             User user = new User(partner, userId, name, email, country, organization,
-                passwordCallback);
-            createUserDirectories(user);
-            if (saveCertificates) {
+                createPasswordCallback(password));
+            //createUserDirectories(user);
+            /*if (saveCertificates) {
                 user.saveUserCertificates(configuration.getKeystoreDirectory(user));
-            }
-            configuration.getSerializationManager().serialize(bank);
-            configuration.getSerializationManager().serialize(partner);
-            configuration.getSerializationManager().serialize(user);
-            createLetters(user, useCertificates);
+            }*/
+            byte[] bankObj = configuration.getSerializationManager().serialize(bank);
+            byte[] partnerObj = configuration.getSerializationManager().serialize(partner);
+            byte[] userObj = configuration.getSerializationManager().serialize(user);
+            
+            //createLetters(user, useCertificates);
             users.put(userId, user);
             partners.put(partner.getPartnerId(), partner);
             banks.put(bank.getHostId(), bank);
 
+            
             configuration.getLogger().info(
                 Messages.getString("user.create.success", Constants.APPLICATION_BUNDLE_NAME, userId));
-            return user;
+            
+            UserObjects objs = new UserObjects();
+            objs.BankObj = bankObj;
+            objs.ParterObj = partnerObj;
+            objs.UserObj = userObj;
+            
+            return objs;
         } catch (Exception e) {
             configuration.getLogger().error(
                 Messages.getString("user.create.error", Constants.APPLICATION_BUNDLE_NAME), e);
             throw e;
         }
     }
-
+/*
     private void createLetters(EbicsUser user, boolean useCertificates)
         throws GeneralSecurityException, IOException, EbicsException, FileNotFoundException {
         user.getPartner().getBank().setUseCertificate(useCertificates);
@@ -228,38 +241,37 @@ public class EbicsClient {
             }
         }
     }
-
+*/
     /**
      * Loads a user knowing its ID
      *
      * @throws Exception
      */
-    public User loadUser(String hostId, String partnerId, String userId,
-        PasswordCallback passwordCallback) throws Exception {
-        configuration.getLogger().info(
-            Messages.getString("user.load.info", Constants.APPLICATION_BUNDLE_NAME, userId));
-
+    public User loadUser(byte[] userObj, byte[] bankObj, byte[] partnerObj) throws Exception {
+        SerializationManager serializer = configuration.getSerializationManager();
+        
         try {
             Bank bank;
             Partner partner;
             User user;
-            try (ObjectInputStream input = configuration.getSerializationManager().deserialize(
-                hostId)) {
+            
+            // ??? does it work?
+            try (ObjectInputStream input = serializer.deserialize(bankObj)) {
                 bank = (Bank) input.readObject();
             }
-            try (ObjectInputStream input = configuration.getSerializationManager().deserialize(
-                "partner-" + partnerId)) {
+            try (ObjectInputStream input = serializer.deserialize(partnerObj)) {
                 partner = new Partner(bank, input);
             }
-            try (ObjectInputStream input = configuration.getSerializationManager().deserialize(
-                "user-" + userId)) {
-                user = new User(partner, input, passwordCallback);
+            try (ObjectInputStream input = serializer.deserialize(userObj)) {
+                user = (User) input.readObject();
             }
-            users.put(userId, user);
+            
+            users.put(user.getUserId(), user);
             partners.put(partner.getPartnerId(), partner);
             banks.put(bank.getHostId(), bank);
+            
             configuration.getLogger().info(
-                Messages.getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+                Messages.getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
             return user;
         } catch (Exception e) {
             configuration.getLogger().error(
@@ -519,16 +531,12 @@ public class EbicsClient {
         return line;
     }
 
-    public static EbicsClient createEbicsClient(File rootDir, File configFile) throws FileNotFoundException,
+    public static EbicsClient createEbicsClient(String language, String country, String productName) throws FileNotFoundException,
         IOException {
-        ConfigProperties properties = new ConfigProperties(configFile);
-        final String country = properties.get("countryCode").toUpperCase();
-        final String language = properties.get("languageCode").toLowerCase();
-        final String productName = properties.get("productName");
 
         final Locale locale = new Locale(language, country);
 
-        DefaultConfiguration configuration = new DefaultConfiguration(rootDir.getAbsolutePath()) {
+        DefaultConfiguration configuration = new DefaultConfiguration() {
 
             @Override
             public Locale getLocale() {
@@ -536,7 +544,7 @@ public class EbicsClient {
             }
         };
 
-        EbicsClient client = new EbicsClient(configuration, properties);
+        EbicsClient client = new EbicsClient(configuration);
 
         Product product = new Product(productName, language, null);
 
@@ -604,7 +612,7 @@ public class EbicsClient {
         }
 
         if (cmd.hasOption("letters")) {
-            client.createLetters(client.defaultUser, false);
+            //client.createLetters(client.defaultUser, false);
         }
 
         if (cmd.hasOption("ini")) {
