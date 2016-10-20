@@ -131,7 +131,7 @@ public class User implements EbicsUser, Savable {
   public User(EbicsPartner partner,
               String userId,
               String name,
-              String keystorePath,
+              byte[] certificate,
               PasswordCallback passwordCallback)
     throws GeneralSecurityException, IOException
   {
@@ -139,7 +139,7 @@ public class User implements EbicsUser, Savable {
     this.userId = userId;
     this.name = name;
     this.passwordCallback = passwordCallback;
-    loadCertificates(keystorePath);
+    loadCertificates(certificate);
     this.dn = a005Certificate.getSubjectDN().getName();
     needSave = true;
   }
@@ -160,12 +160,12 @@ public class User implements EbicsUser, Savable {
    * @throws GeneralSecurityException
    * @throws IOException
    */
-  public void saveUserCertificates(String path) throws GeneralSecurityException, IOException {
+  public byte[] exportUserCertificates() throws GeneralSecurityException, IOException {
     if (manager == null) {
-      throw new GeneralSecurityException("Cannot save user certificates");
+      throw new GeneralSecurityException("Cannot export user certificates");
     }
 
-    manager.save(path, passwordCallback);
+    return manager.export(passwordCallback);
   }
 
   /**
@@ -174,11 +174,11 @@ public class User implements EbicsUser, Savable {
    * @throws GeneralSecurityException
    * @throws IOException
    */
-  private void loadCertificates(String keyStorePath)
+  private void loadCertificates(byte[] certificate)
     throws GeneralSecurityException, IOException
   {
     manager = new CertificateManager(this);
-    manager.load(keyStorePath, passwordCallback);
+    manager.load(certificate, passwordCallback);
   }
 
   @Override
