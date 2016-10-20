@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.session;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,8 +51,9 @@ public class DefaultTraceManager implements TraceManager {
    * @param isTraceEnabled is trace enabled?
    */
   public DefaultTraceManager(File traceDir, boolean isTraceEnabled) {
-    this.traceDir = traceDir;
-    cache = new FileCache(isTraceEnabled);
+    //this.traceDir = traceDir;
+    //cache = new FileCache(isTraceEnabled);
+	this.isTraceEnabled = isTraceEnabled;
   }
 
   /**
@@ -72,42 +74,47 @@ public class DefaultTraceManager implements TraceManager {
   @Override
   public void trace(EbicsRootElement element) throws EbicsException {
     try {
-      FileOutputStream		out;
-      File			file;
+    	if (this.isTraceEnabled) {
+	      //FileOutputStream		out;
+	      //File			file;
 
-      file = IOUtils.createFile(traceDir, element.getName());
-      out = new FileOutputStream(file);
-      element.save(out);
-      cache.add(file);
-    } catch (IOException e) {
+	      ByteArrayOutputStream out = new ByteArrayOutputStream();
+	      element.save(out);
+	      
+	      //cache.add(file);
+	      
+	      System.out.println(out.toString());
+    	}
+    } catch (Exception e) {
       throw new EbicsException(e.getMessage());
     }
   }
 
   @Override
   public void remove(EbicsRootElement element) {
-    cache.remove(element.getName());
+    //cache.remove(element.getName());
   }
 
   @Override
   public void clear() {
-    cache.clear();
+    //cache.clear();
   }
 
   @Override
   public void setTraceDirectory(String traceDir) {
-    this.traceDir = new File(traceDir);
+    //this.traceDir = new File(traceDir);
   }
 
   @Override
   public void setTraceEnabled(boolean enabled) {
-    cache.setTraceEnabled(enabled);
+    //cache.setTraceEnabled(enabled);
   }
 
   // --------------------------------------------------------------------
   // DATA MEMBERS
   // --------------------------------------------------------------------
 
-  private File				traceDir;
-  private FileCache			cache;
+  //private File				traceDir;
+  //private FileCache			cache;
+  private boolean			isTraceEnabled;
 }
