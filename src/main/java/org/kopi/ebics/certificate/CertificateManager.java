@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.certificate;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -136,10 +137,10 @@ public class CertificateManager {
    * @throws GeneralSecurityException
    * @throws IOException
    */
-  public void save(String path, PasswordCallback pwdCallBack)
+  public byte[] export(PasswordCallback pwdCallBack)
     throws GeneralSecurityException, IOException
   {
-    writePKCS12Certificate(path + "/" + user.getUserId(), pwdCallBack.getPassword());
+    return exportPKCS12Certificate(pwdCallBack.getPassword());
   }
 
   /**
@@ -149,14 +150,14 @@ public class CertificateManager {
    * @throws GeneralSecurityException
    * @throws IOException
    */
-  public void load(String path, PasswordCallback pwdCallBack)
+  public void load(byte[] content, PasswordCallback pwdCallBack)
     throws GeneralSecurityException, IOException
   {
     KeyStoreManager		loader;
 
     loader = new KeyStoreManager();
 
-    loader.load(path, pwdCallBack.getPassword());
+    loader.load(content, pwdCallBack.getPassword());
     a005Certificate = loader.getCertificate(user.getUserId() + "-A005");
     x002Certificate = loader.getCertificate(user.getUserId() + "-X002");
     e002Certificate = loader.getCertificate(user.getUserId() + "-E002");
@@ -173,20 +174,12 @@ public class CertificateManager {
    * @param password the key password
    * @throws IOException
    */
-  public void writePKCS12Certificate(String filename, char[] password)
+  public byte[] exportPKCS12Certificate(char[] password)
     throws GeneralSecurityException, IOException
   {
-    if (filename == null || "".equals(filename)) {
-      throw new IOException("The file name cannot be empty");
-    }
-
-    if (!filename.toLowerCase().endsWith(".p12")) {
-      filename += ".p12";
-    }
-
-    FileOutputStream fos = new FileOutputStream(filename);
-    writePKCS12Certificate(password, fos);
-    fos.close();
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    writePKCS12Certificate(password, bos);
+    return bos.toByteArray();
   }
 
   /**
