@@ -19,6 +19,8 @@
 
 package org.kopi.ebics.session;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -42,53 +44,32 @@ import org.kopi.ebics.io.IOUtils;
  */
 public class DefaultSerializationManager implements SerializationManager {
 
-  /**
-   * Constructs a new <code>SerializationManager</code>
-   * @param serializationDir the serialization directory
-   */
-  public DefaultSerializationManager(File serializationDir) {
-    this.serializationDir = serializationDir;
-  }
-
-  /**
-   * Constructs a new <code>SerializationManager</code>
-   */
-  public DefaultSerializationManager() {
-    this(null);
-  }
 
   @Override
-  public void serialize(Savable object) throws EbicsException {
+  public byte[] serialize(Savable object) throws EbicsException {
     try {
       ObjectOutputStream	out;
 
-      out = new ObjectOutputStream(new FileOutputStream(IOUtils.createFile(serializationDir, object.getSaveName())));
+      ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
+      out = new ObjectOutputStream(bytesStream);
       object.save(out);
+      
+      return bytesStream.toByteArray();
     } catch (IOException e) {
       throw new EbicsException(e.getMessage());
     }
   }
 
   @Override
-  public ObjectInputStream deserialize(String name) throws EbicsException {
+  public ObjectInputStream deserialize(byte[] content) throws EbicsException {
     try {
       ObjectInputStream		input;
 
-      input = new ObjectInputStream(new FileInputStream(IOUtils.createFile(serializationDir, name + ".cer")));
+      input = new ObjectInputStream(new ByteArrayInputStream(content));
       return input;
     } catch (IOException e) {
       throw new EbicsException(e.getMessage());
     }
   }
 
-  @Override
-  public void setSerializationDirectory(String serializationDir) {
-    this.serializationDir = new File(serializationDir);
-  }
-
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
-
-  private File 					serializationDir;
 }
