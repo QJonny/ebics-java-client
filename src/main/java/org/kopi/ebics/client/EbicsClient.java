@@ -166,7 +166,7 @@ public class EbicsClient {
      * @return
      * @throws Exception
      */
-    public UserObjects createUser(String url, String bankName, String hostId, String partnerId,
+    public void createUser(String url, String bankName, String hostId, String partnerId,
         String userId, String name, String email, String country, String organization, String password)
         throws Exception {
 
@@ -177,11 +177,6 @@ public class EbicsClient {
             User user = new User(partner, userId, name, email, country, organization,
                 createPasswordCallback(password));
 
-            
-            byte[] bankObj = configuration.getSerializationManager().serialize(bank);
-            byte[] partnerObj = configuration.getSerializationManager().serialize(partner);
-            byte[] userObj = configuration.getSerializationManager().serialize(user);
-            
 
             users.put(userId, user);
             partners.put(partner.getPartnerId(), partner);
@@ -190,19 +185,45 @@ public class EbicsClient {
             
             configuration.getLogger().info(
                 Messages.getString("user.create.success", Constants.APPLICATION_BUNDLE_NAME, userId));
-            
-            UserObjects objs = new UserObjects();
-            objs.BankObj = bankObj;
-            objs.ParterObj = partnerObj;
-            objs.UserObj = userObj;
-            
-            return objs;
         } catch (Exception e) {
             configuration.getLogger().error(
                 Messages.getString("user.create.error", Constants.APPLICATION_BUNDLE_NAME), e);
             throw e;
         }
     }
+    
+    
+    public UserObjects exportUserObjects(String userId) throws Exception {
+    	if(!users.containsKey(userId)) {
+    		throw new EbicsException("User not found");
+    	}
+		User user = users.get(userId);
+		
+    	if(!partners.containsKey(user.getPartner().getPartnerId())) {
+    		throw new EbicsException("Partner not found");
+    	}
+		Partner partner = partners.get(user.getPartner().getPartnerId());
+		
+    	if(!banks.containsKey(partner.getBank().getHostId())) {
+    		throw new EbicsException("Bank not found");
+    	}
+		Bank bank = banks.get(partner.getBank().getHostId());
+		
+    	
+        byte[] bankObj = configuration.getSerializationManager().serialize(bank);
+        byte[] partnerObj = configuration.getSerializationManager().serialize(partner);
+        byte[] userObj = configuration.getSerializationManager().serialize(user);
+        
+
+
+        UserObjects objs = new UserObjects();
+        objs.BankObj = bankObj;
+        objs.ParterObj = partnerObj;
+        objs.UserObj = userObj;
+        
+        return objs;
+    }
+    
     
     public byte[] exportKeyStore(String userId) throws EbicsException, IOException, GeneralSecurityException{
     	if(!users.containsKey(userId)) {
@@ -222,7 +243,7 @@ public class EbicsClient {
     }
     
     
-    public EbicsUserCertificates getUserCertificates(String userId) throws EbicsException {
+    public EbicsUserCertificates exportUserCertificates(String userId) throws EbicsException {
     	if(!users.containsKey(userId)) {
     		throw new EbicsException("User not found");
     	}
