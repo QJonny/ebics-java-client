@@ -69,9 +69,8 @@ public class EbicsClient {
     private final Map<String, User> users = new HashMap<>();
     private final Map<String, Partner> partners = new HashMap<>();
     private final Map<String, Bank> banks = new HashMap<>();
-    private final ConfigProperties properties;
+
     private Product defaultProduct;
-    private User defaultUser;
 
     static {
         org.apache.xml.security.Init.init();
@@ -504,37 +503,7 @@ public class EbicsClient {
         configuration.getTraceManager().clear();
     }
 
-    public static class ConfigProperties {
-        Properties properties = new Properties();
 
-        public ConfigProperties(File file) throws FileNotFoundException, IOException {
-            properties.load(new FileInputStream(file));
-        }
-
-        public String get(String key) {
-            String value = properties.getProperty(key);
-            if (value == null || value.isEmpty()) {
-                throw new IllegalArgumentException("property not set or emtpy" + key);
-            }
-            return value.trim();
-        }
-    }
-
-    private User createUser(ConfigProperties properties, PasswordCallback pwdHandler)
-        throws Exception {
-        String userId = properties.get("userId");
-        String bankUrl = properties.get("bank.url");
-        String bankName = properties.get("bank.name");
-        String hostId = properties.get("hostId");
-        String userName = properties.get("user.name");
-        String userEmail = properties.get("user.email");
-        String userCountry = properties.get("user.country");
-        String userOrg = properties.get("user.org");
-        boolean useCertificates = false;
-        boolean saveCertificates = true;
-        return createUser(new URL(bankUrl), bankName, hostId, userId, userId, userName, userEmail,
-            userCountry, userOrg, useCertificates, saveCertificates, pwdHandler);
-    }
 
     private static CommandLine parseArguments(Options options, String[] args) throws ParseException {
         CommandLineParser parser = new DefaultParser();
@@ -576,19 +545,10 @@ public class EbicsClient {
         return client;
     }
 
-    public void createDefaultUser() throws Exception {
-        defaultUser = createUser(properties, createPasswordCallback());
-    }
 
-    public void loadDefaultUser() throws Exception {
-        String userId = properties.get("userId");
-        String hostId = properties.get("hostId");
-        String partnerId = properties.get("partnerId");
-        defaultUser = loadUser(hostId, partnerId, userId, createPasswordCallback());
-    }
 
-    private PasswordCallback createPasswordCallback() {
-        final String password = properties.get("password");
+    private PasswordCallback createPasswordCallback(String pwd) {
+        final String password = pwd;
         PasswordCallback pwdHandler = new PasswordCallback() {
 
             @Override
@@ -691,16 +651,5 @@ public class EbicsClient {
         }
 
         client.quit();
-    }
-
-    private static File getOutputFile(String outputFileName) {
-        if (outputFileName == null || outputFileName.isEmpty()) {
-            throw new IllegalArgumentException("outputFileName not set");
-        }
-        File file = new File(outputFileName);
-        if (file.exists()) {
-            throw new IllegalArgumentException("file already exists " + file);
-        }
-        return file;
     }
 }
