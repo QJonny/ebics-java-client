@@ -249,8 +249,8 @@ public class User implements EbicsUser, Savable {
   /**
    * EBICS Specification 2.4.2 - 7.1 Process description:
    *
-   * <p>In particular, so-called “white-space characters” such as spaces, tabs, carriage
-   * returns and line feeds (“CR/LF”) are not permitted.
+   * <p>In particular, so-called white-spaced characters such as spaces, tabs, carriage
+   * returns and line feeds are not permitted.
    *
    * <p> All white-space characters should be removed from entry buffer {@code buf}.
    *
@@ -444,7 +444,7 @@ public class User implements EbicsUser, Savable {
    *   <li> Canonisation process.
    * </ol>
    *
-   * <p>For the identification and authentication process, EBICS defines the process “X002” with
+   * <p>For the identification and authentication process, EBICS defines the process with
    * the following parameters:
    * <ol>
    *   <li>Key length in Kbit >=1Kbit (1024 bit) and lesser than 16Kbit</li>
@@ -569,7 +569,7 @@ public class User implements EbicsUser, Savable {
    * In doing this, the following initialization value ICV is again used.
    *
    * <p><b>Removal of the padding information</b>
-   * <p>The method “Padding with Octets” according to ANSI X9.23 is used to remove the padding
+   * <p>The method Padding with according to ANSI X9.23 is used to remove the padding
    * information from the decrypted message. The original message is then available in decrypted
    * form.
    *

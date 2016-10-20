@@ -173,9 +173,9 @@ public class Utils {
    * <p>EBICS Specification 2.4.2 - 5.5.1.1.1 EBICS messages in transaction initialization:
    * 
    * <p>The identification and authentication signature includes all XML elements of the
-   * EBICS request whose attribute value for @authenticate is equal to “true”. The
-   * definition of the XML schema “ebics_request.xsd“ guarantees that the value of the
-   * attribute @authenticate is equal to “true” for precisely those elements that also
+   * EBICS request whose attribute value for @authenticate is equal to true. The
+   * definition of the XML schema ebics_request.xsd guarantees that the value of the
+   * attribute @authenticate is equal to true for precisely those elements that also
    * need to be signed.
    * 
    * <p>Thus, All the Elements with the attribute authenticate = true and their 
@@ -238,7 +238,7 @@ public class Utils {
    * <p><U>Application of the encryption algorithm:</U>
    * <p>The message is encrypted in CBC mode in accordance with ANSI X3.106 with the secret key
    * DEK according to the 2-key triple DES process as specified in ANSI X3.92-1981.
-   * <p>In doing this, the following initialization value “ICV” is used: X ‘00 00 00 00 00 00 00 00’.
+   * <p>In doing this, the following initialization value ICV is used: X ‘00 00 00 00 00 00 00 00’.
    * 
    * @param input the input to encrypt
    * @param keySpec the key spec

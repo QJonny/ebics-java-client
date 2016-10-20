@@ -84,7 +84,7 @@ public class KeyUtil {
    * Returns the digest value of a given public key.
    *
    *
-   * <p>In Version “H003” of the EBICS protocol the ES of the financial:
+   * <p>In Version H003 of the EBICS protocol the ES of the financial:
    *
    * <p>The SHA-256 hash values of the financial institution's public keys for X002 and E002 are
    * composed by concatenating the exponent with a blank character and the modulus in hexadecimal
