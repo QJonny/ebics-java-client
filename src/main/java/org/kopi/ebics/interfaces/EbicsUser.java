@@ -54,6 +54,26 @@ public interface EbicsUser {
    */
   public RSAPublicKey getX002PublicKey();
 
+  
+  /**
+   * Returns the private part of the signature key.
+   * @return the private part of the signature key.
+   */
+  public PrivateKey getA005PrivateKey();
+
+  /**
+   * Returns the private part of the encryption key.
+   * @return the private part of the encryption key.
+   */
+  public PrivateKey getE002PrivateKey();
+
+  /**
+   * Return the private part of the transport authentication key.
+   * @return the private part of the transport authentication key.
+   */
+  public PrivateKey getX002PrivateKey();
+  
+  
   /**
    * Returns the signature certificate.
    * @return the encryption certificate.

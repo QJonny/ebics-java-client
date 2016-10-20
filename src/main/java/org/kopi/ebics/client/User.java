@@ -363,6 +363,8 @@ public class User implements EbicsUser, Savable {
     needSave = true;
   }
 
+  
+  
   @Override
   public RSAPublicKey getA005PublicKey() {
     return (RSAPublicKey) a005Certificate.getPublicKey();
@@ -378,6 +380,7 @@ public class User implements EbicsUser, Savable {
     return (RSAPublicKey) x002Certificate.getPublicKey();
   }
 
+  
   @Override
   public void setA005PrivateKey(PrivateKey a005PrivateKey) {
     this.a005PrivateKey = a005PrivateKey;
@@ -396,6 +399,24 @@ public class User implements EbicsUser, Savable {
     needSave = true;
   }
 
+  
+  @Override
+  public PrivateKey getA005PrivateKey() {
+    return a005PrivateKey;
+  }
+
+  @Override
+  public PrivateKey getE002PrivateKey() {
+    return e002PrivateKey;
+  }
+
+  @Override
+  public PrivateKey getX002PrivateKey() {
+    return x002PrivateKey;
+  }
+  
+  
+  
   @Override
   public String getSecurityMedium() {
     return "0000";
