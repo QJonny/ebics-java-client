@@ -50,8 +50,7 @@ public class DefaultConfiguration implements Configuration {
    * Creates a new application configuration.
    * @param rootDir the root directory
    */
-  public DefaultConfiguration(String rootDir) {
-    this.rootDir = rootDir;
+  public DefaultConfiguration() {
     bundle = ResourceBundle.getBundle(RESOURCE_DIR);
     properties = new Properties();
     logger = new DefaultEbicsLogger();
@@ -59,13 +58,7 @@ public class DefaultConfiguration implements Configuration {
     traceManager = new DefaultTraceManager();
   }
 
-  /**
-   * Creates a new application configuration.
-   * The root directory will be user.home/ebics/client
-   */
-  public DefaultConfiguration() {
-    this(System.getProperty("user.home") + File.separator + "ebics" + File.separator + "client");
-  }
+
 
   /**
    * Returns the corresponding property of the given key
@@ -97,33 +90,11 @@ public class DefaultConfiguration implements Configuration {
 
     isConfigFileLoad = true;
   }
-/*
-  @Override
-  public String getRootDirectory() {
-    return rootDir;
-  }*/
 
+  
   @Override
-  public void init() {/*
-    //Create the root directory
-    IOUtils.createDirectories(getRootDirectory());
-    //Create the logs directory
-    IOUtils.createDirectories(getLogDirectory());
-    //Create the serialization directory
-    IOUtils.createDirectories(getSerializationDirectory());
-    //create the SSL trusted stores directories
-    IOUtils.createDirectories(getSSLTrustedStoreDirectory());
-    //create the SSL key stores directories
-    IOUtils.createDirectories(getSSLKeyStoreDirectory());
-    //Create the SSL bank certificates directories
-    IOUtils.createDirectories(getSSLBankCertificates());
-    //Create users directory
-    IOUtils.createDirectories(getUsersDirectory());
-
-    logger.setLogFile(getLogDirectory() + File.separator + getLogFileName());*/
-    ((DefaultEbicsLogger)logger).setFileLoggingEnabled(true);
+  public void init() {
     ((DefaultEbicsLogger)logger).setLevel(DefaultEbicsLogger.ALL_LEVEL);
-    //serializationManager.setSerializationDirectory(getSerializationDirectory());
     traceManager.setTraceEnabled(isTraceEnabled());
     letterManager = new DefaultLetterManager(getLocale());
   }
@@ -132,21 +103,7 @@ public class DefaultConfiguration implements Configuration {
   public Locale getLocale() {
     return Locale.FRANCE;
   }
-/*
-  @Override
-  public String getLogDirectory() {
-    return rootDir + File.separator + getString("log.dir.name");
-  }
 
-  @Override
-  public String getLogFileName() {
-    return getString("log.file.name");
-  }
-
-  @Override
-  public String getConfigurationFile() {
-    return rootDir + File.separator + getString("conf.file.name");
-  }
 
   @Override
   public String getProperty(String key) {
@@ -160,7 +117,7 @@ public class DefaultConfiguration implements Configuration {
 
     return properties.getProperty(key);
   }
-
+/*
   @Override
   public String getSSLTrustedStoreDirectory() {
     return rootDir + File.separator + getString("ssltruststore.dir.name");
@@ -237,14 +194,13 @@ public class DefaultConfiguration implements Configuration {
   // DATA MEMBERS
   // --------------------------------------------------------------------
 
-  private final String				rootDir;
   private ResourceBundle			bundle;
   private Properties				properties;
   private EbicsLogger				logger;
-  private SerializationManager			serializationManager;
+  private SerializationManager		serializationManager;
   private TraceManager				traceManager;
   private LetterManager				letterManager;
-  private boolean				isConfigFileLoad;
+  private boolean					isConfigFileLoad;
 
   private static final String			RESOURCE_DIR = "org.kopi.ebics.client.config";
 }

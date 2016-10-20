@@ -31,25 +31,12 @@ import java.util.Locale;
 public interface Configuration {
 
   /**
-   * Returns the default log directory of the application.
-   * @return the default log directory
-   */
-  //public String getLogDirectory();
-
-  /**
-   * Returns the default log file name of the application
-   * @return the default log file name
-   */
-  //public String getLogFileName();
-
-
-  /**
    * Returns the property value of a given key from
    * the configuration file
    * @param key the given key
    * @return the property value
    */
-  //public String getProperty(String key);
+  public String getProperty(String key);
 
 
   /**
