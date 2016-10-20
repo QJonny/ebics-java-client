@@ -20,8 +20,6 @@
 package org.kopi.ebics.io;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -37,97 +35,6 @@ import org.kopi.ebics.interfaces.ContentFactory;
  *
  */
 public class IOUtils {
-
-  /**
-   * Creates a directory from a root one
-   * @param parent the parent directory
-   * @param child the directory name
-   * @return The created directory
-   */
-  public static File createDirectory(File parent, String child) {
-    File			directory;
-
-    directory = new File(parent, child);
-    directory.mkdir();
-
-    return directory;
-  }
-
-  /**
-   * Creates a directory from a root one
-   * @param parent the parent directory
-   * @param child the directory name
-   * @return The created directory
-   */
-  public static File createDirectory(String parent, String child) {
-    File			directory;
-
-    directory = new File(parent, child);
-    directory.mkdir();
-
-    return directory;
-  }
-
-  /**
-   * Creates a directory from a directory name
-   * @param name the absolute directory name
-   * @return The created directory
-   */
-  public static File createDirectory(String name) {
-    File			directory;
-
-    directory = new File(name);
-    directory.mkdir();
-
-    return directory;
-  }
-
-  /**
-   * Creates many directories from a given full path.
-   * Path should use default separator like '/' for UNIX
-   * systems
-   * @param fullName the full absolute path of the directories
-   * @return The created directory
-   */
-  public static File createDirectories(String fullName) {
-    File			directory;
-
-    directory = new File(fullName);
-    directory.mkdirs();
-
-    return directory;
-  }
-
-  /**
-   * Creates a new <code>java.io.File</code> from a given root.
-   * @param parent the parent of the file.
-   * @param name the file name.
-   * @return the created file.
-   */
-  public static File createFile(File parent, String name) {
-    File			file;
-
-    file = new File(parent, name);
-
-    return file;
-  }
-
-
-  /**
-   * Returns the content of a file as byte array.
-   * @param file the file
-   * @return the byte array content of the file
-   * @throws EbicsException
-   */
-  public static byte[] getFileContent(File file) throws EbicsException {
-    try {
-      try(FileInputStream input = new FileInputStream(file)) {
-          return inputStreamToBytes(input);
-      }
-    } catch (IOException e) {
-      throw new EbicsException(e.getMessage());
-    }
-  }
 
   /**
    * Returns the content of a <code>ContentFactory</code> as a byte array
