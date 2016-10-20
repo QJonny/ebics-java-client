@@ -77,6 +77,15 @@ public class EbicsClient {
         java.security.Security.addProvider(new BouncyCastleProvider());
     }
 
+    public class EbicsUserCertificates {
+		public byte[] A005Certificate;
+		public byte[] E002Certificate;
+		public byte[] X002Certificate;
+		public byte[] A005PrivateKey;
+		public byte[] E002PrivateKey;
+		public byte[] X002PrivateKey;
+	}
+    
     /**
      * Constructs a new ebics client application
      *
@@ -99,21 +108,7 @@ public class EbicsClient {
         return session;
     }
 
-    /**
-     * Creates the user necessary directories
-     *
-     * @param user
-     *            the concerned user
-     */
-    /*public void createUserDirectories(EbicsUser user) {
-        configuration.getLogger().info(
-            Messages.getString("user.create.directories", Constants.APPLICATION_BUNDLE_NAME,
-                user.getUserId()));
-        IOUtils.createDirectories(configuration.getUserDirectory(user));
-        IOUtils.createDirectories(configuration.getTransferTraceDirectory(user));
-        IOUtils.createDirectories(configuration.getKeystoreDirectory(user));
-        IOUtils.createDirectories(configuration.getLettersDirectory(user));
-    }*/
+
 
     /**
      * Creates a new EBICS bank with the data you should have obtained from the
@@ -198,9 +193,7 @@ public class EbicsClient {
             User user = new User(partner, userId, name, email, country, organization,
                 createPasswordCallback(password));
 
-            /*if (saveCertificates) {
-                user.saveUserCertificates(configuration.getKeystoreDirectory(user));
-            }*/
+            
             byte[] bankObj = configuration.getSerializationManager().serialize(bank);
             byte[] partnerObj = configuration.getSerializationManager().serialize(partner);
             byte[] userObj = configuration.getSerializationManager().serialize(user);
@@ -226,22 +219,43 @@ public class EbicsClient {
             throw e;
         }
     }
-/*
-    private void createLetters(EbicsUser user, boolean useCertificates)
-        throws GeneralSecurityException, IOException, EbicsException, FileNotFoundException {
-        user.getPartner().getBank().setUseCertificate(useCertificates);
-        LetterManager letterManager = configuration.getLetterManager();
-        List<InitLetter> letters = Arrays.asList(letterManager.createA005Letter(user),
-            letterManager.createE002Letter(user), letterManager.createX002Letter(user));
-
-        File directory = new File(configuration.getLettersDirectory(user));
-        for (InitLetter letter : letters) {
-            try (FileOutputStream out = new FileOutputStream(new File(directory, letter.getName()))) {
-                letter.writeTo(out);
-            }
-        }
+    
+    public byte[] getUserCertificateFile(String userId) throws EbicsException, IOException, GeneralSecurityException{
+    	if(!users.containsKey(userId)) {
+    		throw new EbicsException("User not found");
+    	}
+    	
+    	try {
+			return users.get(userId).exportUserCertificates();
+		} catch (GeneralSecurityException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+			throw e;
+		}
     }
-*/
+    
+    
+    public EbicsUserCertificates getUserCertificates(String userId) throws EbicsException {
+    	if(!users.containsKey(userId)) {
+    		throw new EbicsException("User not found");
+    	}
+    	
+		User user = users.get(userId);
+		EbicsUserCertificates certificates = new EbicsUserCertificates();
+			
+		certificates.A005Certificate = user.getA005Certificate();
+		certificates.E002Certificate = user.getE002Certificate();
+		certificates.X002Certificate = user.getX002Certificate();
+		
+		certificates.A005PrivateKey = user.getA005PrivateKey().getEncoded();
+		certificates.E002PrivateKey = user.getE002PrivateKey().getEncoded();
+		certificates.X002PrivateKey = user.getX002PrivateKey().getEncoded();
+		
+		return certificates;
+    }
+    
+
     /**
      * Loads a user knowing its ID
      *
