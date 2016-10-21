@@ -133,6 +133,7 @@ public class EbicsClient {
     	public byte[] UserObj;
     	public byte[] ParterObj;
     	public byte[] BankObj;
+    	public String Password;
     }
     
     /**
@@ -220,6 +221,7 @@ public class EbicsClient {
         objs.BankObj = bankObj;
         objs.ParterObj = partnerObj;
         objs.UserObj = userObj;
+        objs.Password = new String (user.getPasswordCallback().getPassword());
         
         return objs;
     }
