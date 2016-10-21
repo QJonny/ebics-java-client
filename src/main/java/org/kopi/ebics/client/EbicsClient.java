@@ -528,10 +528,10 @@ public class EbicsClient {
     /**
      * Performs buffers save before quitting the client application.
      */
-    public void quit() {
+    public void clear() {
     	this.users.clear();
-    	this.banks.clear();
     	this.partners.clear();
+    	this.banks.clear();
     }
 
 
