@@ -268,7 +268,7 @@ public class EbicsClient {
      *
      * @throws Exception
      */
-    public User loadUser(byte[] userObj, byte[] bankObj, byte[] partnerObj) throws Exception {
+    public void loadUser(String password, byte[] userObj, byte[] bankObj, byte[] partnerObj) throws Exception {
         SerializationManager serializer = configuration.getSerializationManager();
         
         try {
@@ -280,11 +280,13 @@ public class EbicsClient {
             try (ObjectInputStream input = serializer.deserialize(bankObj)) {
                 bank = (Bank) input.readObject();
             }
+
             try (ObjectInputStream input = serializer.deserialize(partnerObj)) {
-                partner = new Partner(bank, input);
+                partner = new Partner (bank, input);
             }
+
             try (ObjectInputStream input = serializer.deserialize(userObj)) {
-                user = (User) input.readObject();
+                user = new User(partner, input, createPasswordCallback(password));
             }
             
             
@@ -306,7 +308,6 @@ public class EbicsClient {
             
             configuration.getLogger().info(
                 Messages.getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
-            return user;
         } catch (Exception e) {
             configuration.getLogger().error(
                 Messages.getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
