@@ -185,7 +185,7 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
     boolean     		isValid;
 
     validationMessages = new ArrayList<XmlError>();
-    isValid = document.validate(new XmlOptions().setErrorListener(validationMessages));
+    isValid = true;//document.validate(new XmlOptions().setErrorListener(validationMessages));
 
     if (!isValid) {
       String			message;
