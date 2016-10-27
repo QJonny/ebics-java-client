@@ -121,11 +121,9 @@ public class Partner implements EbicsPartner, Savable {
   public String nextOrderId() {
     char[]      chars = new char[4];
 
-    orderId += 1;
-    if (orderId > 36*36*36*36 - 1) {
-      // ensure that orderId starts with a letter
-      orderId = 10*36*36*36;
-    }
+
+    orderId = this.randomWithRange(MIN_ORDER_ID, MAX_ORDER_ID);
+
     chars[3] = ALPHA_NUM_CHARS.charAt(orderId % 36);
     chars[2] = ALPHA_NUM_CHARS.charAt((orderId / 36) % 36);
     chars[1] = ALPHA_NUM_CHARS.charAt((orderId / 36 / 36) % 36);
@@ -140,14 +138,22 @@ public class Partner implements EbicsPartner, Savable {
     return "partner-" + partnerId + ".cer";
   }
 
+  
+  private int randomWithRange(int min, int max)
+  {
+     int range = (max - min) + 1;     
+     return (int)(Math.random() * range) + min;
+  }
   // --------------------------------------------------------------------
   // DATA MEMBERS
   // --------------------------------------------------------------------
 
   private EbicsBank			bank;
-  private int				orderId = 10*36*36*36;
+  private int				orderId = MIN_ORDER_ID;
   private String			partnerId;
   private transient boolean		needSave;
 
   private static final String		ALPHA_NUM_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  private static final int 			MIN_ORDER_ID	= 10*36*36*36;
+  private static final int 			MAX_ORDER_ID	= 36*36*36*36;
 }
