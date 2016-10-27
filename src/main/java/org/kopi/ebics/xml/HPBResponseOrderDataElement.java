@@ -19,6 +19,9 @@
 
 package org.kopi.ebics.xml;
 
+import java.io.IOException;
+
+import org.apache.xmlbeans.XmlException;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.schema.h003.HPBResponseOrderDataDocument;
@@ -78,7 +81,16 @@ public class HPBResponseOrderDataElement extends DefaultResponseElement {
   @Override
   public void build() throws EbicsException {
     parse(factory);
-    response = ((HPBResponseOrderDataDocument)document).getHPBResponseOrderData();
+    //response = ((HPBResponseOrderDataDocument)document).getHPBResponseOrderData();
+    try {
+		response = HPBResponseOrderDataDocument.Factory.parse(factory.getContent()).getHPBResponseOrderData();
+	} catch (XmlException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
   }
 
   @Override

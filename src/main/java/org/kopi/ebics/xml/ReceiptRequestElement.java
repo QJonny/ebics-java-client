@@ -80,6 +80,7 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
     document = EbicsXmlFactory.createEbicsRequestDocument(request);
     signedInfo = new SignedInfo(session.getUser(), getDigest());
     signedInfo.build();
+
     ((EbicsRequestDocument)document).getEbicsRequest().setAuthSignature(signedInfo.getSignatureType());
     ((EbicsRequestDocument)document).getEbicsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signedInfo.sign(toByteArray())));
   }

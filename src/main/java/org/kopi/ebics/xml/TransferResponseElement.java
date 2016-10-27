@@ -19,6 +19,9 @@
 
 package org.kopi.ebics.xml;
 
+import java.io.IOException;
+
+import org.apache.xmlbeans.XmlException;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
@@ -50,7 +53,16 @@ public class TransferResponseElement extends DefaultResponseElement {
     String			text;
 
     parse(factory);
-    response = ((EbicsResponseDocument)document).getEbicsResponse();
+    //response = ((EbicsResponseDocument)document).getEbicsResponse();
+    try {
+		response = EbicsResponseDocument.Factory.parse(factory.getContent()).getEbicsResponse();
+	} catch (XmlException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     code = response.getHeader().getMutable().getReturnCode();
     text = response.getHeader().getMutable().getReportText();
     returnCode = ReturnCode.toReturnCode(code, text);

@@ -19,6 +19,9 @@
 
 package org.kopi.ebics.xml;
 
+import java.io.IOException;
+
+import org.apache.xmlbeans.XmlException;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
@@ -69,7 +72,18 @@ public class KeyManagementResponseElement extends DefaultResponseElement {
     String			text;
 
     parse(factory);
-    response = ((EbicsKeyManagementResponseDocument)document).getEbicsKeyManagementResponse();
+    System.out.println(document.xmlText());
+    
+    //response = ((EbicsKeyManagementResponseDocument)document).getEbicsKeyManagementResponse();
+    try {
+		response = EbicsKeyManagementResponseDocument.Factory.parse(factory.getContent()).getEbicsKeyManagementResponse();
+	} catch (XmlException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     code = response.getHeader().getMutable().getReturnCode();
     text = response.getHeader().getMutable().getReportText();
     returnCode = ReturnCode.toReturnCode(code, text);
