@@ -172,7 +172,7 @@ public class EbicsClient {
         throws Exception {
 
 
-        Bank bank = createBank(new URL(url), bankName, hostId, false);
+        Bank bank = createBank(new URL(url), bankName, hostId, true);
         Partner partner = createPartner(bank, partnerId);
         try {
             User user = new User(partner, userId, name, email, country, organization,
