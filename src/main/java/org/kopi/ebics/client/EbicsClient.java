@@ -22,14 +22,17 @@ package org.kopi.ebics.client;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.math.BigInteger;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.kopi.ebics.certificate.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.interfaces.EbicsBank;
@@ -61,15 +64,7 @@ public class EbicsClient {
         java.security.Security.addProvider(new BouncyCastleProvider());
     }
 
-    public class EbicsUserCertificates {
-		public byte[] A005Certificate;
-		public byte[] E002Certificate;
-		public byte[] X002Certificate;
-		public byte[] A005PrivateKey;
-		public byte[] E002PrivateKey;
-		public byte[] X002PrivateKey;
-	}
-    
+
     /**
      * Constructs a new ebics client application
      *
@@ -109,6 +104,11 @@ public class EbicsClient {
      * @return the created ebics bank
      */
     private Bank createBank(URL url, String name, String hostId, boolean useCertificate) {
+    	if (banks.containsKey(hostId))
+    	{
+    		return banks.get(hostId);
+    	}
+    	
         Bank bank = new Bank(url, name, hostId, useCertificate);
         banks.put(hostId, bank);
         return bank;
@@ -123,18 +123,17 @@ public class EbicsClient {
      *            the partner ID
      */
     private Partner createPartner(EbicsBank bank, String partnerId) {
+    	if (partners.containsKey(partnerId))
+    	{
+    		return partners.get(partnerId);
+    	}
+    	
         Partner partner = new Partner(bank, partnerId);
         partners.put(partnerId, partner);
         return partner;
     }
 
-    
-    public class UserObjects {
-    	public byte[] UserObj;
-    	public byte[] ParterObj;
-    	public byte[] BankObj;
-    	public String Password;
-    }
+
     
     /**
      * Creates a new ebics user and generates its certificates.
@@ -167,21 +166,18 @@ public class EbicsClient {
      * @return
      * @throws Exception
      */
-    public void createUser(String url, String bankName, String hostId, String partnerId,
+    public void createUser(String url, String bankName, boolean bankUseCertificate, String hostId, String partnerId,
         String userId, String name, String email, String country, String organization, String password)
         throws Exception {
 
 
-        Bank bank = createBank(new URL(url), bankName, hostId, true);
+        Bank bank = createBank(new URL(url), bankName, hostId, bankUseCertificate);
         Partner partner = createPartner(bank, partnerId);
         try {
             User user = new User(partner, userId, name, email, country, organization,
                 createPasswordCallback(password));
 
-
             users.put(userId, user);
-            partners.put(partner.getPartnerId(), partner);
-            banks.put(bank.getHostId(), bank);
 
             
             configuration.getLogger().info(
@@ -193,38 +189,102 @@ public class EbicsClient {
         }
     }
     
+   
+
+    /**
+     * Loads a user knowing its ID
+     *
+     * @throws Exception
+     */
+    public void loadUser(UserParams userParams, BankParams bankParams, PartnerParams partnerParams, 
+    		byte[] keyStore, BankKeys bankKeys,
+    		String password) 
+    	throws Exception {
+        try {
+            Bank bank;
+            Partner partner;
+            User user;
+        	
+            if (!banks.containsKey(bankParams.Id)) {
+            	bank = new Bank(bankParams);
+            	
+            	if (bankKeys != null) {
+                	RSAPublicKey e002Key = KeyUtil.getPublicKeyFromData(bankKeys.E002Key);
+                	RSAPublicKey x002Key = KeyUtil.getPublicKeyFromData(bankKeys.X002Key);
+                	
+                	bank.setBankKeys(e002Key, x002Key);
+                	bank.setDigests(KeyUtil.getKeyDigest(e002Key), KeyUtil.getKeyDigest(x002Key));
+            	}
+           	
+            	
+            	banks.put(bank.getHostId(), bank);
+            }
+            else {
+            	bank = banks.get(bankParams.Id);
+            }
+
+            
+            if (!partners.containsKey(partnerParams.Id)) {
+            	partner = new Partner (bank, partnerParams);
+            	partners.put(partner.getPartnerId(), partner);
+            }
+            else {
+            	partner = partners.get(partnerParams.Id);
+            }
+ 
+            
+            if (!users.containsKey(userParams.Id)) {
+            	user = new User(partner, userParams, keyStore, createPasswordCallback(password));
+                users.put(user.getUserId(), user);
+            }
+            else {
+            	user = users.get(userParams.Id);
+            }
+
+
+            configuration.getLogger().info(
+                Messages.getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
+        } catch (Exception e) {
+            configuration.getLogger().error(
+                Messages.getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
+            throw e;
+        }
+    }
+
     
-    public UserObjects exportUserObjects(String userId) throws Exception {
+    
+    public Params exportBankParams(String hostId) throws EbicsException {
+    	if(!banks.containsKey(hostId)) {
+    		throw new EbicsException("Bank not found");
+    	}
+		return banks.get(hostId).export();
+    }
+    
+    public Params exportPartnerParams(String partnerId) throws EbicsException {
+    	if(!partners.containsKey(partnerId)) {
+    		throw new EbicsException("Partner not found");
+    	}
+		return partners.get(partnerId).export();
+    }
+    
+    public Params exportUserParams(String userId) throws EbicsException {
     	if(!users.containsKey(userId)) {
     		throw new EbicsException("User not found");
     	}
-		User user = users.get(userId);
-		
-    	if(!partners.containsKey(user.getPartner().getPartnerId())) {
-    		throw new EbicsException("Partner not found");
-    	}
-		Partner partner = partners.get(user.getPartner().getPartnerId());
-		
-    	if(!banks.containsKey(partner.getBank().getHostId())) {
+		return users.get(userId).export();
+    }
+    
+    public Params exportBankKeys(String hostId) throws EbicsException {
+    	if(!banks.containsKey(hostId)) {
     		throw new EbicsException("Bank not found");
     	}
-		Bank bank = banks.get(partner.getBank().getHostId());
-		
     	
-        byte[] bankObj = configuration.getSerializationManager().serialize(bank);
-        byte[] partnerObj = configuration.getSerializationManager().serialize(partner);
-        byte[] userObj = configuration.getSerializationManager().serialize(user);
-        
-
-
-        UserObjects objs = new UserObjects();
-        objs.BankObj = bankObj;
-        objs.ParterObj = partnerObj;
-        objs.UserObj = userObj;
-        objs.Password = new String (user.getPasswordCallback().getPassword());
-        
-        return objs;
+    	Bank bank = banks.get(hostId);
+    	
+    	return new BankKeys(hostId, bank.getE002Key().getEncoded(), bank.getX002Key().getEncoded());
     }
+    
+    
     
     
     public byte[] exportKeyStore(String userId) throws EbicsException, IOException, GeneralSecurityException{
@@ -235,7 +295,7 @@ public class EbicsClient {
 		User user = users.get(userId);
     	
     	try {
-			return user.exportUserCertificates();
+			return user.exportKeyStore();
 		} catch (GeneralSecurityException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -244,79 +304,9 @@ public class EbicsClient {
 		}
     }
     
+     
     
-    public EbicsUserCertificates exportUserCertificates(String userId) throws EbicsException {
-    	if(!users.containsKey(userId)) {
-    		throw new EbicsException("User not found");
-    	}
-    	
-		User user = users.get(userId);
-		EbicsUserCertificates certificates = new EbicsUserCertificates();
-			
-		certificates.A005Certificate = user.getA005Certificate();
-		certificates.E002Certificate = user.getE002Certificate();
-		certificates.X002Certificate = user.getX002Certificate();
-		
-		certificates.A005PrivateKey = user.getA005PrivateKey().getEncoded();
-		certificates.E002PrivateKey = user.getE002PrivateKey().getEncoded();
-		certificates.X002PrivateKey = user.getX002PrivateKey().getEncoded();
-		
-		return certificates;
-    }
     
-
-    /**
-     * Loads a user knowing its ID
-     *
-     * @throws Exception
-     */
-    public void loadUser(String password, byte[] userObj, byte[] bankObj, byte[] partnerObj) throws Exception {
-        SerializationManager serializer = configuration.getSerializationManager();
-        
-        try {
-            Bank bank;
-            Partner partner;
-            User user;
-            
-            // ??? does it work?
-            try (ObjectInputStream input = serializer.deserialize(bankObj)) {
-                bank = (Bank) input.readObject();
-            }
-
-            try (ObjectInputStream input = serializer.deserialize(partnerObj)) {
-                partner = new Partner (bank, input);
-            }
-
-            try (ObjectInputStream input = serializer.deserialize(userObj)) {
-                user = new User(partner, input, createPasswordCallback(password));
-            }
-            
-            
-            
-            if (!users.containsKey(user.getUserId())) {
-                users.put(user.getUserId(), user);
-            }
-            
-            if (!partners.containsKey(partner.getPartnerId())) {
-            	partners.put(partner.getPartnerId(), partner);
-            }
-            
-            if (!banks.containsKey(bank.getHostId())) {
-            	banks.put(bank.getHostId(), bank);
-            }
-
-            
-            
-            
-            configuration.getLogger().info(
-                Messages.getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
-        } catch (Exception e) {
-            configuration.getLogger().error(
-                Messages.getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            throw e;
-        }
-    }
-
     
     
     
