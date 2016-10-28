@@ -19,27 +19,40 @@
 
 package org.kopi.ebics.client;
 
+
 /**
- * Simple implementation of an EBICS customer.
- * This object is not serializable, but it should be persisted every time it needs to be saved.
- * Persistence is achieved via <code>save(ObjectOutputStream)</code> and the matching constructor.
+ * Simple implementation of an EBICS bank.
+ * This object is serializable to facilitate persisting of the values.
+ * Save the the object whenever it needs to be saved.
  *
  * @author Hachani
  *
  */
-public class PartnerParams extends Params {
+public class BankKeys extends Params {
 
   /**
-   * Reconstructs a persisted EBICS customer.
-   * @param bank the bank
-   * @param ois the stream object
-   * @throws IOException
+   * Constructs a new EBICS bank with the data you should have obtained from the bank.
+   * @param url the bank URL
+   * @param name the bank name
+   * @param hostId the bank host ID
+   * @param useCertificate does the bank use certificates for exchange ?
    */
-  public PartnerParams(String partnerId, String bankId) {
-	super (partnerId);
-    this.BankId = bankId;
+  public BankKeys(String hostId, byte[] e002Key, byte[] x002Key) {
+	super(hostId);
+    this.E002Key = e002Key;
+    this.X002Key = x002Key;
   }
 
 
-  public String			BankId;
+  /**
+   * The ban encryption key
+   * @serial
+   */
+  public byte[]		E002Key;
+
+  /**
+   * The ban encryption key
+   * @serial
+   */
+  public byte[]		X002Key;
 }

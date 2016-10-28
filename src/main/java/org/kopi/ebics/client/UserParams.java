@@ -27,7 +27,7 @@ package org.kopi.ebics.client;
  * @author Hachani
  *
  */
-public class UserParams {
+public class UserParams extends Params {
 
 
   /**
@@ -40,15 +40,15 @@ public class UserParams {
    * @throws GeneralSecurityException
    * @throws IOException
    */
-  public UserParams(String partnerId,
-              String userId,
+  public UserParams(String userId,
+          	  String partnerId,
               String name,
               String dn,
               boolean isInitialized,
               boolean isInitializedHIA)
   {
+	super (userId);
     this.PartnerId = partnerId;
-    this.UserId = userId;
     this.Name = name;
     this.Dn = dn;
     this.IsInitialized = isInitialized;
@@ -57,7 +57,6 @@ public class UserParams {
 
   
   public String				PartnerId;
-  public String				UserId;
   public String				Name;
   public String				Dn;
   public boolean			IsInitializedHIA;

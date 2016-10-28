@@ -19,8 +19,6 @@
 
 package org.kopi.ebics.client;
 
-
-
 /**
  * Simple implementation of an EBICS bank.
  * This object is serializable to facilitate persisting of the values.
@@ -29,7 +27,7 @@ package org.kopi.ebics.client;
  * @author Hachani
  *
  */
-public class BankParams {
+public class BankParams extends Params {
 
   /**
    * Constructs a new EBICS bank with the data you should have obtained from the bank.
@@ -38,10 +36,10 @@ public class BankParams {
    * @param hostId the bank host ID
    * @param useCertificate does the bank use certificates for exchange ?
    */
-  public BankParams(String url, String name, String hostId, boolean useCertificate) {
+  public BankParams(String hostId, String url, String name, boolean useCertificate) {
+	super (hostId);
     this.Url = url;
     this.Name = name;
-    this.HostId = hostId;
     this.UseCertificate = useCertificate;
   }
 
@@ -52,11 +50,6 @@ public class BankParams {
    */
   public String			Url;
 
-  /**
-   * The bank host id
-   * @serial
-   */
-  public String		HostId;
   
   /**
    * Does the bank use certificates for signing/crypting ?
