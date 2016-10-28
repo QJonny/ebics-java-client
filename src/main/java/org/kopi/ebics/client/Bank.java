@@ -22,10 +22,12 @@ package org.kopi.ebics.client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 
 import org.kopi.ebics.interfaces.EbicsBank;
+import org.kopi.ebics.interfaces.Exportable;
 import org.kopi.ebics.interfaces.Savable;
 
 
@@ -37,7 +39,7 @@ import org.kopi.ebics.interfaces.Savable;
  * @author Hachani
  *
  */
-public class Bank implements EbicsBank, Savable {
+public class Bank implements EbicsBank, Savable, Exportable {
 
   /**
    * Constructs a new EBICS bank with the data you should have obtained from the bank.
@@ -53,7 +55,16 @@ public class Bank implements EbicsBank, Savable {
     this.useCertificate = useCertificate;
     needSave = true;
   }
+  
+  public Bank(BankParams params) throws MalformedURLException {
+	this.url = new URL (params.Url);
+    this.name = params.Name;
+    this.hostId = params.Id;
+    this.useCertificate = params.UseCertificate;
+    needSave = true;
+  }
 
+  
   @Override
   public void save(ObjectOutputStream oos) throws IOException {
     oos.writeObject(this);
@@ -62,6 +73,11 @@ public class Bank implements EbicsBank, Savable {
     needSave = false;
   }
 
+  @Override
+  public Params export() {
+	  return new BankParams(this.hostId, this.url.toString(), this.name, this.useCertificate);
+  }
+  
   /**
    * Did any persistent attribute change since last load/save operation.
    * @return True if the object needs to be saved.
@@ -129,16 +145,19 @@ public class Bank implements EbicsBank, Savable {
     return name;
   }
 
-    @Override
-    public boolean useCertificate() {
-        return useCertificate;
-    }
-
-    @Override
-    public void setUseCertificate(boolean useCertificate) {
-        this.useCertificate = useCertificate;
-        needSave = true;
-    }
+	@Override
+	public boolean useCertificate() {
+	    return useCertificate;
+	}
+	
+	@Override
+	public void setUseCertificate(boolean useCertificate) {
+	    this.useCertificate = useCertificate;
+	    needSave = true;
+	}
+	
+	
+	
     
   @Override
   public void setBankKeys(RSAPublicKey e002Key, RSAPublicKey x002Key) {
@@ -159,6 +178,9 @@ public class Bank implements EbicsBank, Savable {
     return hostId + ".cer";
   }
 
+ 
+  
+  
   // --------------------------------------------------------------------
   // DATA MEMBERS
   // --------------------------------------------------------------------

@@ -39,6 +39,7 @@ import org.kopi.ebics.certificate.CertificateManager;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsPartner;
 import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.interfaces.Exportable;
 import org.kopi.ebics.interfaces.PasswordCallback;
 import org.kopi.ebics.interfaces.Savable;
 import org.kopi.ebics.utils.Utils;
@@ -52,7 +53,7 @@ import org.kopi.ebics.xml.UserSignature;
  * @author Hachani
  *
  */
-public class User implements EbicsUser, Savable {
+public class User implements EbicsUser, Savable, Exportable {
 
   /**
    * First time constructor. Use this constructor,
@@ -87,6 +88,22 @@ public class User implements EbicsUser, Savable {
     createUserCertificates();
     needSave = true;
   }
+  
+  
+  public User(EbicsPartner partner, UserParams params, byte[] keyStore, PasswordCallback passwordCallback)
+       throws GeneralSecurityException, IOException
+	{
+		this.partner = partner;
+		this.userId = params.Id;
+		this.name = params.Name;
+		this.dn = params.Dn;
+		this.passwordCallback = passwordCallback;
+		this.isInitialized = params.IsInitialized;
+		this.isInitializedHIA = params.IsInitializedHIA;
+		loadCertificates(keyStore);
+		needSave = true;
+	}
+  
 
   /**
    * Reconstructs a persisted EBICS user.
@@ -118,31 +135,7 @@ public class User implements EbicsUser, Savable {
     this.x002PrivateKey = (PrivateKey)ois.readObject();
   }
 
-  /**
-   * Reconstructs a an EBICS user by loading its certificate
-   * from a given key store.
-   * @param partner the customer in whose name we operate.
-   * @param userId UserID as obtained from the bank.
-   * @param keystorePath the key store path
-   * @param passwordCallback a callback-handler that supplies us with the password.
-   * @throws GeneralSecurityException
-   * @throws IOException
-   */
-  public User(EbicsPartner partner,
-              String userId,
-              String name,
-              byte[] certificate,
-              PasswordCallback passwordCallback)
-    throws GeneralSecurityException, IOException
-  {
-    this.partner = partner;
-    this.userId = userId;
-    this.name = name;
-    this.passwordCallback = passwordCallback;
-    loadCertificates(certificate);
-    this.dn = a005Certificate.getSubjectDN().getName();
-    needSave = true;
-  }
+
 
   /**
    * Creates new certificates for a user.
@@ -160,7 +153,7 @@ public class User implements EbicsUser, Savable {
    * @throws GeneralSecurityException
    * @throws IOException
    */
-  public byte[] exportUserCertificates() throws GeneralSecurityException, IOException {
+  public byte[] exportKeyStore() throws GeneralSecurityException, IOException {
     if (manager == null) {
       throw new GeneralSecurityException("Cannot export user certificates");
     }
@@ -174,11 +167,11 @@ public class User implements EbicsUser, Savable {
    * @throws GeneralSecurityException
    * @throws IOException
    */
-  private void loadCertificates(byte[] certificate)
+  private void loadCertificates(byte[] keyStore)
     throws GeneralSecurityException, IOException
   {
     manager = new CertificateManager(this);
-    manager.load(certificate, passwordCallback);
+    manager.load(keyStore, passwordCallback);
   }
 
   @Override
@@ -199,6 +192,11 @@ public class User implements EbicsUser, Savable {
     needSave = false;
   }
 
+  @Override
+  public Params export() {
+	  return new UserParams(this.userId, this.partner.getPartnerId(), this.name,  this.dn, this.isInitialized, this.isInitializedHIA);
+  }
+  
   /**
    * Has the users signature key been sent to the bank?
    * @return True if the users signature key been sent to the bank

@@ -22,9 +22,12 @@ package org.kopi.ebics.client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.kopi.ebics.interfaces.EbicsBank;
 import org.kopi.ebics.interfaces.EbicsPartner;
+import org.kopi.ebics.interfaces.Exportable;
 import org.kopi.ebics.interfaces.Savable;
 
 
@@ -36,7 +39,7 @@ import org.kopi.ebics.interfaces.Savable;
  * @author Hachani
  *
  */
-public class Partner implements EbicsPartner, Savable {
+public class Partner implements EbicsPartner, Savable, Exportable {
 
   /**
    * Reconstructs a persisted EBICS customer.
@@ -60,7 +63,14 @@ public class Partner implements EbicsPartner, Savable {
     this.partnerId = partnerId;
     needSave = true;
   }
+  
+  public Partner(EbicsBank bank, PartnerParams params) {
+    this.bank = bank;
+    this.partnerId = params.Id;
+    needSave = true;
+  }
 
+  
   /**
    * Returns the next order available ID
    * @return the next order ID
@@ -87,6 +97,11 @@ public class Partner implements EbicsPartner, Savable {
     needSave = false;
   }
 
+  @Override
+  public Params export() {
+	  return new PartnerParams(this.partnerId, this.bank.getHostId());
+  }
+  
   /**
    * Did any persistable attribute change since last load/save operation.
    * @return True if the object needs to be saved.
