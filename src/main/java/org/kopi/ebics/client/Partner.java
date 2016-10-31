@@ -100,18 +100,6 @@ public class Partner implements EbicsPartner, Savable, Exportable {
 	  return new PartnerParams(this.partnerId, this.bank.getHostId());
   }
   
-  /**
-   * Did any persistable attribute change since last load/save operation.
-   * @return True if the object needs to be saved.
-   */
-  public boolean needsSave() {
-    return needSave;
-  }
-
-  @Override
-  public EbicsBank getBank() {
-    return bank;
-  }
 
   @Override
   public String getPartnerId() {

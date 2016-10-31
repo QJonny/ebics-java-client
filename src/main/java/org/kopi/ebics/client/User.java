@@ -97,8 +97,6 @@ public class User implements EbicsUser, Savable, Exportable {
 		this.name = params.Name;
 		this.dn = params.Dn;
 		this.passwordCallback = passwordCallback;
-		this.isInitialized = params.IsInitialized;
-		this.isInitializedHIA = params.IsInitializedHIA;
 		loadCertificates(keyStore);
 	}
   
@@ -123,8 +121,6 @@ public class User implements EbicsUser, Savable, Exportable {
     this.userId = ois.readUTF();
     this.name = ois.readUTF();
     this.dn = ois.readUTF();
-    this.isInitialized = ois.readBoolean();
-    this.isInitializedHIA = ois.readBoolean();
     this.a005Certificate = (X509Certificate)ois.readObject();
     this.e002Certificate = (X509Certificate)ois.readObject();
     this.x002Certificate = (X509Certificate)ois.readObject();
@@ -177,8 +173,6 @@ public class User implements EbicsUser, Savable, Exportable {
     oos.writeUTF(userId);
     oos.writeUTF(name);
     oos.writeUTF(dn);
-    oos.writeBoolean(isInitialized);
-    oos.writeBoolean(isInitializedHIA);
     oos.writeObject(a005Certificate);
     oos.writeObject(e002Certificate);
     oos.writeObject(x002Certificate);
@@ -187,60 +181,14 @@ public class User implements EbicsUser, Savable, Exportable {
     oos.writeObject(x002PrivateKey);
     oos.flush();
     oos.close();
-    needSave = false;
   }
 
   @Override
   public Params export() {
-	  return new UserParams(this.userId, this.partner.getPartnerId(), this.name,  this.dn, this.isInitialized, this.isInitializedHIA);
-  }
-  
-  /**
-   * Has the users signature key been sent to the bank?
-   * @return True if the users signature key been sent to the bank
-   */
-  public boolean isInitialized() {
-    return isInitialized;
+	  return new UserParams(this.userId, this.partnerId, this.name,  this.dn);
   }
 
-  /**
-   * The users signature key has been sent to the bank.
-   * @param isInitialized transfer successful?
-   */
-  public void setInitialized(boolean isInitialized) {
-    this.isInitialized = isInitialized;
-    needSave = true;
-  }
 
-  /**
-   * Have the users authentication and encryption keys been sent to the bank?
-   * @return True if the users authentication and encryption keys been sent to the bank.
-   */
-  public boolean isInitializedHIA() {
-    return isInitializedHIA;
-  }
-
-  /**
-   * The users authentication and encryption keys have been sent to the bank.
-   * @param isInitializedHIA transfer successful?
-   */
-  public void setInitializedHIA(boolean isInitializedHIA) {
-    this.isInitializedHIA = isInitializedHIA;
-    needSave = true;
-  }
-
-  /**
-   * Generates new keys for this user and sends them to the bank.
-   * @param keymgmt the key management instance with the ebics session.
-   * @param passwordCallback the password-callback for the new keys.
-   * @throws EbicsException Exception during server request
-   * @throws IOException Exception during server request
-   */
-  public void updateKeys(KeyManagement keymgmt, PasswordCallback passwordCallback)
-    throws EbicsException, IOException
-  {
-    needSave = true;
-  }
 
   /**
    * EBICS Specification 2.4.2 - 7.1 Process description:
@@ -598,8 +546,6 @@ public class User implements EbicsUser, Savable, Exportable {
   private String				userId;
   private String				name;
   private String				dn;
-  private boolean				isInitializedHIA;
-  private boolean				isInitialized;
   private PasswordCallback 			passwordCallback;
   private transient boolean			needSave;
   private CertificateManager			manager;
