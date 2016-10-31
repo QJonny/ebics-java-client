@@ -35,11 +35,10 @@ public class PartnerParams extends Params {
    * @param ois the stream object
    * @throws IOException
    */
-  public PartnerParams(String partnerId, String bankId) {
+  public PartnerParams(String partnerId, String hostId) {
 	super (partnerId);
-    this.BankId = bankId;
+	this.HostId = hostId;
   }
 
-
-  public String			BankId;
+  public String				HostId;
 }

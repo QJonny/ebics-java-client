@@ -43,22 +43,16 @@ public class UserParams extends Params {
   public UserParams(String userId,
           	  String partnerId,
               String name,
-              String dn,
-              boolean isInitialized,
-              boolean isInitializedHIA)
+              String dn)
   {
 	super (userId);
     this.PartnerId = partnerId;
     this.Name = name;
     this.Dn = dn;
-    this.IsInitialized = isInitialized;
-    this.IsInitializedHIA = isInitializedHIA;
   }
 
   
   public String				PartnerId;
   public String				Name;
   public String				Dn;
-  public boolean			IsInitializedHIA;
-  public boolean			IsInitialized;
 }
