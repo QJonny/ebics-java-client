@@ -85,7 +85,6 @@ public class Partner implements EbicsPartner, Savable, Exportable {
    */
   public void setOrderId(Integer orderId) {
     this.orderId = orderId.intValue();
-    needSave = true;
   }
 
   @Override
@@ -94,7 +93,6 @@ public class Partner implements EbicsPartner, Savable, Exportable {
     oos.writeInt(orderId);
     oos.flush();
     oos.close();
-    needSave = false;
   }
 
   @Override
@@ -143,7 +141,6 @@ public class Partner implements EbicsPartner, Savable, Exportable {
     chars[2] = ALPHA_NUM_CHARS.charAt((orderId / 36) % 36);
     chars[1] = ALPHA_NUM_CHARS.charAt((orderId / 36 / 36) % 36);
     chars[0] = ALPHA_NUM_CHARS.charAt(orderId / 36 / 36 / 36);
-    needSave = true;
 
     return new String(chars);
   }
@@ -166,7 +163,6 @@ public class Partner implements EbicsPartner, Savable, Exportable {
   private EbicsBank			bank;
   private int				orderId = MIN_ORDER_ID;
   private String			partnerId;
-  private transient boolean		needSave;
 
   private static final String		ALPHA_NUM_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private static final int 			MIN_ORDER_ID	= 10*36*36*36;

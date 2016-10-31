@@ -86,7 +86,6 @@ public class User implements EbicsUser, Savable, Exportable {
     this.dn = makeDN(name, email, country, organization);
     this.passwordCallback = passwordCallback;
     createUserCertificates();
-    needSave = true;
   }
   
   
@@ -101,7 +100,6 @@ public class User implements EbicsUser, Savable, Exportable {
 		this.isInitialized = params.IsInitialized;
 		this.isInitializedHIA = params.IsInitializedHIA;
 		loadCertificates(keyStore);
-		needSave = true;
 	}
   
 
@@ -308,13 +306,7 @@ public class User implements EbicsUser, Savable, Exportable {
     return buffer.toString();
   }
 
-  /**
-   * Did any persistable attribute change since last load/save operation.
-   * @return True if the object needs to be saved.
-   */
-  public boolean needsSave() {
-    return needSave;
-  }
+
 
   @Override
   public byte[] getA005Certificate() throws EbicsException {
@@ -346,19 +338,16 @@ public class User implements EbicsUser, Savable, Exportable {
   @Override
   public void setA005Certificate(X509Certificate a005Certificate) {
     this.a005Certificate = a005Certificate;
-    needSave = true;
   }
 
   @Override
   public void setE002Certificate(X509Certificate e002Certificate) {
     this.e002Certificate = e002Certificate;
-    needSave = true;
   }
 
   @Override
   public void setX002Certificate(X509Certificate x002Certificate) {
     this.x002Certificate = x002Certificate;
-    needSave = true;
   }
 
   
@@ -382,19 +371,16 @@ public class User implements EbicsUser, Savable, Exportable {
   @Override
   public void setA005PrivateKey(PrivateKey a005PrivateKey) {
     this.a005PrivateKey = a005PrivateKey;
-    needSave = true;
   }
 
   @Override
   public void setX002PrivateKey(PrivateKey x002PrivateKey) {
     this.x002PrivateKey = x002PrivateKey;
-    needSave = true;
   }
 
   @Override
   public void setE002PrivateKey(PrivateKey e002PrivateKey) {
     this.e002PrivateKey = e002PrivateKey;
-    needSave = true;
   }
 
   

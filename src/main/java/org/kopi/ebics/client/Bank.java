@@ -53,7 +53,6 @@ public class Bank implements EbicsBank, Savable, Exportable {
     this.name = name;
     this.hostId = hostId;
     this.useCertificate = useCertificate;
-    needSave = true;
   }
   
   public Bank(BankParams params) throws MalformedURLException {
@@ -61,7 +60,6 @@ public class Bank implements EbicsBank, Savable, Exportable {
     this.name = params.Name;
     this.hostId = params.Id;
     this.useCertificate = params.UseCertificate;
-    needSave = true;
   }
 
   
@@ -70,20 +68,11 @@ public class Bank implements EbicsBank, Savable, Exportable {
     oos.writeObject(this);
     oos.flush();
     oos.close();
-    needSave = false;
   }
 
   @Override
   public Params export() {
 	  return new BankParams(this.hostId, this.url.toString(), this.name, this.useCertificate);
-  }
-  
-  /**
-   * Did any persistent attribute change since last load/save operation.
-   * @return True if the object needs to be saved.
-   */
-  public boolean needsSave() {
-    return needSave;
   }
 
   /**
@@ -153,7 +142,6 @@ public class Bank implements EbicsBank, Savable, Exportable {
 	@Override
 	public void setUseCertificate(boolean useCertificate) {
 	    this.useCertificate = useCertificate;
-	    needSave = true;
 	}
 	
 	
@@ -163,14 +151,12 @@ public class Bank implements EbicsBank, Savable, Exportable {
   public void setBankKeys(RSAPublicKey e002Key, RSAPublicKey x002Key) {
     this.e002Key = e002Key;
     this.x002Key = x002Key;
-    needSave = true;
   }
 
   @Override
   public void setDigests(byte[] e002Digest, byte[] x002Digest) {
     this.e002Digest = e002Digest;
     this.x002Digest = x002Digest;
-    needSave = true;
   }
 
   @Override
@@ -233,7 +219,6 @@ public class Bank implements EbicsBank, Savable, Exportable {
    */
   private RSAPublicKey		x002Key;
 
-  private transient boolean	needSave;
 
   private static final long 	serialVersionUID = 2123071449956793284L;
 
