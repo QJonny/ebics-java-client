@@ -137,11 +137,7 @@ public interface EbicsUser {
    */
   public String getSecurityMedium();
 
-  /**
-   * Returns the customer in whose name we operate.
-   * @return the customer in whose name we operate.
-   */
-  public EbicsPartner getPartner();
+
 
   /**
    * Returns the (bank provided) user id.

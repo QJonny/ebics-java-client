@@ -27,11 +27,6 @@ package org.kopi.ebics.interfaces;
  */
 public interface EbicsPartner {
 
-  /**
-   * Returns the bank we are customer of.
-   * @return the bank we are customer of
-   */
-  public EbicsBank getBank();
 
   /**
    * Returns the customers id at the bank.
