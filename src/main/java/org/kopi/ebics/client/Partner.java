@@ -47,9 +47,9 @@ public class Partner implements EbicsPartner, Savable, Exportable {
    * @param ois the stream object
    * @throws IOException
    */
-  public Partner(EbicsBank bank, ObjectInputStream ois) throws IOException {
-    this.bank = bank;
+  public Partner(ObjectInputStream ois) throws IOException {
     this.partnerId = ois.readUTF();
+    this.hostId = ois.readUTF();
     this.orderId = ois.readInt();
   }
 
@@ -58,16 +58,14 @@ public class Partner implements EbicsPartner, Savable, Exportable {
    * @param bank the bank
    * @param partnerId the partner ID
    */
-  public Partner(EbicsBank bank, String partnerId) {
-    this.bank = bank;
+  public Partner(String partnerId, String hostId) {
     this.partnerId = partnerId;
-    needSave = true;
+    this.hostId = hostId;
   }
   
-  public Partner(EbicsBank bank, PartnerParams params) {
-    this.bank = bank;
+  public Partner(PartnerParams params) {
     this.partnerId = params.Id;
-    needSave = true;
+    this.hostId = params.HostId;
   }
 
   
@@ -90,6 +88,7 @@ public class Partner implements EbicsPartner, Savable, Exportable {
   @Override
   public void save(ObjectOutputStream oos) throws IOException {
     oos.writeUTF(partnerId);
+    oos.writeUTF(hostId);
     oos.writeInt(orderId);
     oos.flush();
     oos.close();
@@ -97,7 +96,7 @@ public class Partner implements EbicsPartner, Savable, Exportable {
 
   @Override
   public Params export() {
-	  return new PartnerParams(this.partnerId, this.bank.getHostId());
+	  return new PartnerParams(this.partnerId, this.hostId);
   }
   
 
@@ -148,7 +147,7 @@ public class Partner implements EbicsPartner, Savable, Exportable {
   // DATA MEMBERS
   // --------------------------------------------------------------------
 
-  private EbicsBank			bank;
+  private String			hostId;
   private int				orderId = MIN_ORDER_ID;
   private String			partnerId;
 

@@ -71,8 +71,8 @@ public class User implements EbicsUser, Savable, Exportable {
    * @throws IOException
    * @throws GeneralSecurityException
    */
-  public User(EbicsPartner partner,
-              String userId,
+  public User(String userId,
+		  	  String partnerId,
               String name,
               String email,
               String country,
@@ -80,7 +80,7 @@ public class User implements EbicsUser, Savable, Exportable {
               PasswordCallback passwordCallback)
     throws GeneralSecurityException, IOException
   {
-    this.partner = partner;
+    this.partnerId = partnerId;
     this.userId = userId;
     this.name = name;
     this.dn = makeDN(name, email, country, organization);
@@ -89,10 +89,10 @@ public class User implements EbicsUser, Savable, Exportable {
   }
   
   
-  public User(EbicsPartner partner, UserParams params, byte[] keyStore, PasswordCallback passwordCallback)
+  public User(UserParams params, byte[] keyStore, PasswordCallback passwordCallback)
        throws GeneralSecurityException, IOException
 	{
-		this.partner = partner;
+		this.partnerId = params.PartnerId;
 		this.userId = params.Id;
 		this.name = params.Name;
 		this.dn = params.Dn;
@@ -111,14 +111,13 @@ public class User implements EbicsUser, Savable, Exportable {
    * @throws GeneralSecurityException if the supplies password is wrong.
    * @throws ClassNotFoundException
    */
-  public User(EbicsPartner partner,
-              ObjectInputStream ois,
+  public User(ObjectInputStream ois,
               PasswordCallback passwordCallback)
     throws IOException, GeneralSecurityException, ClassNotFoundException
   {
-    this.partner = partner;
     this.passwordCallback = passwordCallback;
     this.userId = ois.readUTF();
+    this.partnerId = ois.readUTF();
     this.name = ois.readUTF();
     this.dn = ois.readUTF();
     this.a005Certificate = (X509Certificate)ois.readObject();
@@ -171,6 +170,7 @@ public class User implements EbicsUser, Savable, Exportable {
   @Override
   public void save(ObjectOutputStream oos) throws IOException {
     oos.writeUTF(userId);
+    oos.writeUTF(partnerId);
     oos.writeUTF(name);
     oos.writeUTF(dn);
     oos.writeObject(a005Certificate);
@@ -352,11 +352,6 @@ public class User implements EbicsUser, Savable, Exportable {
   @Override
   public String getSecurityMedium() {
     return "0000";
-  }
-
-  @Override
-  public EbicsPartner getPartner() {
-    return partner;
   }
 
   @Override
@@ -542,13 +537,12 @@ public class User implements EbicsUser, Savable, Exportable {
   // DATA MEMBERS
   // --------------------------------------------------------------------
 
-  private EbicsPartner				partner;
   private String				userId;
+  private String				partnerId;
   private String				name;
   private String				dn;
   private PasswordCallback 			passwordCallback;
-  private transient boolean			needSave;
-  private CertificateManager			manager;
+  private CertificateManager		manager;
 
   private PrivateKey				a005PrivateKey;
   private PrivateKey				e002PrivateKey;
