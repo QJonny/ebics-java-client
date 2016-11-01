@@ -118,12 +118,6 @@ public class User implements EbicsUser, Savable, Exportable {
     this.partnerId = ois.readUTF();
     this.name = ois.readUTF();
     this.dn = ois.readUTF();
-    this.a005Certificate = (X509Certificate)ois.readObject();
-    this.e002Certificate = (X509Certificate)ois.readObject();
-    this.x002Certificate = (X509Certificate)ois.readObject();
-    this.a005PrivateKey = (PrivateKey)ois.readObject();
-    this.e002PrivateKey = (PrivateKey)ois.readObject();
-    this.x002PrivateKey = (PrivateKey)ois.readObject();
   }
 
 
@@ -171,12 +165,6 @@ public class User implements EbicsUser, Savable, Exportable {
     oos.writeUTF(partnerId);
     oos.writeUTF(name);
     oos.writeUTF(dn);
-    oos.writeObject(a005Certificate);
-    oos.writeObject(e002Certificate);
-    oos.writeObject(x002Certificate);
-    oos.writeObject(a005PrivateKey);
-    oos.writeObject(e002PrivateKey);
-    oos.writeObject(x002PrivateKey);
     oos.flush();
     oos.close();
   }
