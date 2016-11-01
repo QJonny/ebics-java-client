@@ -103,7 +103,7 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
     xstatic = EbicsXmlFactory.createNoPubKeyDigestsRequestStaticHeaderType(session.getBankID(),
 	                                                                   Utils.generateNonce(),
 	                                                                   Calendar.getInstance(),
-	                                                                   session.getUser().getPartner().getPartnerId(),
+	                                                                   session.getPartner().getPartnerId(),
 	                                                                   session.getUser().getUserId(),
 	                                                                   product,
 	                                                                   orderDetails,

@@ -71,14 +71,14 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
     EbicsUnsecuredRequest			request;
 
     orderDetails = EbicsXmlFactory.createOrderDetailsType("DZNNN",
-						          orderId == null ? session.getUser().getPartner().nextOrderId() : orderId,
+						          orderId == null ? session.getPartner().nextOrderId() : orderId,
 	                                                  orderType.toString());
 
     productType = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(),
 	                                                  session.getProduct().getName());
 
     xstatic = EbicsXmlFactory.createUnsecuredRequestStaticHeaderType(session.getBankID(),
-								     session.getUser().getPartner().getPartnerId(),
+								     session.getPartner().getPartnerId(),
 								     session.getUser().getUserId(),
 	                                                             productType,
 	                                                             orderDetails,

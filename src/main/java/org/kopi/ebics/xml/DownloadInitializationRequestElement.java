@@ -89,10 +89,10 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
     product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(), session.getProduct().getName());
     authentication = EbicsXmlFactory.createAuthentication(session.getConfiguration().getAuthenticationVersion(),
 	                                                  "http://www.w3.org/2001/04/xmlenc#sha256",
-	                                                  decodeHex(session.getUser().getPartner().getBank().getX002Digest()));
+	                                                  decodeHex(session.getBank().getX002Digest()));
     encryption = EbicsXmlFactory.createEncryption(session.getConfiguration().getEncryptionVersion(),
 	                                          "http://www.w3.org/2001/04/xmlenc#sha256",
-	                                          decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
+	                                          decodeHex(session.getBank().getE002Digest()));
     bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
     orderType = EbicsXmlFactory.createOrderType(type.toString());
     if (type.equals(org.kopi.ebics.session.OrderType.FDL)) {
@@ -118,7 +118,7 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
 	parameter = EbicsXmlFactory.createParameter("TEST", value);
 	fDLOrderParamsType.setParameterArray(new Parameter[] {parameter});
       }
-      orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(session.getUser().getPartner().nextOrderId(),
+      orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(session.getPartner().nextOrderId(),
                                                                         "DZHNN",
                                                                         orderType,
                                                                         fDLOrderParamsType);
@@ -134,7 +134,7 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
     }
     xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(),
                                                      nonce,
-                                                     session.getUser().getPartner().getPartnerId(),
+                                                     session.getPartner().getPartnerId(),
                                                      product,
                                                      session.getUser().getSecurityMedium(),
                                                      session.getUser().getUserId(),
