@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.session.EbicsSession;
 
 
 /**
@@ -44,7 +45,7 @@ public interface LetterManager {
    * @throws IOException
    * @throws GeneralSecurityException
    */
-  public InitLetter createA005Letter(EbicsUser user)
+  public InitLetter createA005Letter(EbicsSession session)
     throws GeneralSecurityException, IOException, EbicsException;
 
   /**
@@ -57,7 +58,7 @@ public interface LetterManager {
    * @throws IOException
    * @throws GeneralSecurityException
    */
-  public InitLetter createE002Letter(EbicsUser user)
+  public InitLetter createE002Letter(EbicsSession session)
     throws GeneralSecurityException, IOException, EbicsException;
 
   /**
@@ -70,6 +71,6 @@ public interface LetterManager {
    * @throws IOException
    * @throws GeneralSecurityException
    */
-  public InitLetter createX002Letter(EbicsUser user)
+  public InitLetter createX002Letter(EbicsSession session)
     throws GeneralSecurityException, IOException, EbicsException;
 }

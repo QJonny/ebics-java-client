@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.session.EbicsSession;
 
 
 /**
@@ -43,7 +44,7 @@ public interface InitLetter {
    * @throws IOException
    * @throws GeneralSecurityException
    */
-  void create(EbicsUser user)
+  void create(EbicsSession session)
     throws GeneralSecurityException, IOException, EbicsException;
 
   /**

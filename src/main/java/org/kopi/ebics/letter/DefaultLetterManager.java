@@ -27,6 +27,7 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.interfaces.InitLetter;
 import org.kopi.ebics.interfaces.LetterManager;
+import org.kopi.ebics.session.EbicsSession;
 
 
 /**
@@ -47,35 +48,35 @@ public class DefaultLetterManager implements LetterManager {
   }
 
   @Override
-  public InitLetter createA005Letter(EbicsUser user)
+  public InitLetter createA005Letter(EbicsSession session)
     throws GeneralSecurityException, IOException, EbicsException
   {
         A005Letter			letter;
 
         letter = new A005Letter(locale);
-        letter.create(user);
+        letter.create(session);
         return letter;
   }
 
   @Override
-  public InitLetter createE002Letter(EbicsUser user)
+  public InitLetter createE002Letter(EbicsSession session)
     throws GeneralSecurityException, IOException, EbicsException
   {
         E002Letter			letter;
 
         letter = new E002Letter(locale);
-        letter.create(user);
+        letter.create(session);
         return letter;
   }
 
   @Override
-  public InitLetter createX002Letter(EbicsUser user)
+  public InitLetter createX002Letter(EbicsSession session)
     throws GeneralSecurityException, IOException, EbicsException
   {
         X002Letter			letter;
 
         letter = new X002Letter(locale);
-        letter.create(user);
+        letter.create(session);
         return letter;
   }
 

@@ -26,6 +26,7 @@ import java.util.Locale;
 import org.apache.commons.codec.binary.Base64;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsUser;
+import org.kopi.ebics.session.EbicsSession;
 
 
 /**
@@ -46,29 +47,29 @@ public class E002Letter extends AbstractInitLetter {
   }
 
     @Override
-    public void create(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
-        if (user.getPartner().getBank().useCertificate()) {
-            build(user.getPartner().getBank().getHostId(),
-                    user.getPartner().getBank().getName(),
-                    user.getUserId(),
-                    user.getName(),
-                    user.getPartner().getPartnerId(),
+    public void create(EbicsSession session) throws GeneralSecurityException, IOException, EbicsException {
+        if (session.getBank().useCertificate()) {
+            build(session.getBank().getHostId(),
+            		session.getBank().getName(),
+            		session.getUser().getUserId(),
+            		session.getUser().getName(),
+            		session.getPartner().getPartnerId(),
                     getString("HIALetter.e002.version", BUNDLE_NAME, locale),
                     getString("HIALetter.e002.certificate", BUNDLE_NAME, locale),
-                    Base64.encodeBase64(user.getE002Certificate(), true),
+                    Base64.encodeBase64(session.getUser().getE002Certificate(), true),
                     getString("HIALetter.e002.digest", BUNDLE_NAME, locale),
-                    getHash(user.getE002Certificate()));
+                    getHash(session.getUser().getE002Certificate()));
         } else {
-            build(user.getPartner().getBank().getHostId(),
-                    user.getPartner().getBank().getName(),
-                    user.getUserId(),
-                    user.getName(),
-                    user.getPartner().getPartnerId(),
+            build(session.getBank().getHostId(),
+            		session.getBank().getName(),
+            		session.getUser().getUserId(),
+            		session.getUser().getName(),
+            		session.getPartner().getPartnerId(),
                     getString("HIALetter.e002.version", BUNDLE_NAME, locale),
                     getString("HIALetter.e002.certificate", BUNDLE_NAME, locale),
                     null,
                     getString("HIALetter.e002.digest", BUNDLE_NAME, locale),
-                    getHash(user.getE002PublicKey()));
+                    getHash(session.getUser().getE002PublicKey()));
         }
     }
 
