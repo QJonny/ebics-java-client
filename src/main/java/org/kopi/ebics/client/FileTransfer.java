@@ -145,9 +145,7 @@ public class FileTransfer {
     TransferResponseElement		response;
     int					httpCode;
 
-    session.getConfiguration().getLogger().info(Messages.getString("upload.segment",
-						                   Constants.APPLICATION_BUNDLE_NAME,
-	                                                           segmentNumber));
+
     uploader = new UploadTransferRequestElement(session,
 	                                   orderType,
 	                                   segmentNumber,

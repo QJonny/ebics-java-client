@@ -309,12 +309,12 @@ public class EbicsClient {
     
     
     
-    public static EbicsClient createEbicsClient(String language, String country, String productName, String traceDir) throws FileNotFoundException,
+    public static EbicsClient createEbicsClient(String language, String country, String productName, boolean trace) throws FileNotFoundException,
         IOException {
 
         final Locale locale = new Locale(language, country);
 
-        DefaultConfiguration configuration = new DefaultConfiguration() {
+        DefaultConfiguration configuration = new DefaultConfiguration(trace) {
 
             @Override
             public Locale getLocale() {

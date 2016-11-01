@@ -50,12 +50,12 @@ public class DefaultConfiguration implements Configuration {
    * Creates a new application configuration.
    * @param rootDir the root directory
    */
-  public DefaultConfiguration() {
+  public DefaultConfiguration(boolean trace) {
     bundle = ResourceBundle.getBundle(RESOURCE_DIR);
     properties = new Properties();
     logger = new DefaultEbicsLogger();
     serializationManager = new DefaultSerializationManager();
-    traceManager = new DefaultTraceManager();
+    traceManager = new DefaultTraceManager(trace);
   }
 
 
