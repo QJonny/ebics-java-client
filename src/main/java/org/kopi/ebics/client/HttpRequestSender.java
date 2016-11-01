@@ -103,7 +103,7 @@ public class HttpRequestSender {
         CloseableHttpClient httpClient = builder.build();
 
         InputStream input = request.getContent();
-        HttpPost method = new HttpPost(session.getUser().getPartner().getBank().getURL().toString());
+        HttpPost method = new HttpPost(session.getBank().getURL().toString());
 
         HttpEntity requestEntity = EntityBuilder.create().setStream(input).build();
         method.setEntity(requestEntity);
