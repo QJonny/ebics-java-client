@@ -28,7 +28,7 @@ package org.kopi.ebics.client;
  * @author Hachani
  *
  */
-public class BankKeys extends Params {
+public class BankKeys {
 
   /**
    * Constructs a new EBICS bank with the data you should have obtained from the bank.
@@ -38,12 +38,14 @@ public class BankKeys extends Params {
    * @param useCertificate does the bank use certificates for exchange ?
    */
   public BankKeys(String hostId, byte[] e002Key, byte[] x002Key) {
-	super(hostId);
+	this.HostId = hostId;
     this.E002Key = e002Key;
     this.X002Key = x002Key;
   }
 
 
+  public String		HostId;
+  
   /**
    * The ban encryption key
    * @serial
