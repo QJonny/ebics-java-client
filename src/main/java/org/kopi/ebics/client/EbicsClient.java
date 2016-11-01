@@ -53,10 +53,6 @@ import org.kopi.ebics.utils.Constants;
  */
 public class EbicsClient {
 	private final Configuration configuration;
-    private final Map<String, User> users = new HashMap<>();
-    private final Map<String, Partner> partners = new HashMap<>();
-    private final Map<String, Bank> banks = new HashMap<>();
-
     private Product defaultProduct;
 
     static {
@@ -76,14 +72,29 @@ public class EbicsClient {
         this.configuration = configuration;
 
         Messages.setLocale(configuration.getLocale());
-        configuration.getLogger().info(
-            Messages.getString("init.configuration", Constants.APPLICATION_BUNDLE_NAME));
         configuration.init();
     }
 
-    private EbicsSession createSession(User user, Product product) {
-        EbicsSession session = new EbicsSession(user, configuration);
-        session.setProduct(product);
+    public EbicsSession createSession(UserParams userParams, PartnerParams partnerParams, BankParams bankParams, String password, byte[] keyStore, BankKeys bankKeys) 
+    		throws Exception {
+    	Bank bank = new Bank(bankParams);
+    	Partner partner = new Partner(partnerParams);
+    	User user = new User(userParams, createPasswordCallback(password));
+    	
+    	if (keyStore != null) {
+    		user.loadCertificates(keyStore);
+    	}
+    	
+    	if (bankKeys != null) {
+    		RSAPublicKey e002Key = KeyUtil.getPublicKeyFromData(bankKeys.E002Key);
+        	RSAPublicKey x002Key = KeyUtil.getPublicKeyFromData(bankKeys.X002Key);
+        	
+        	bank.setBankKeys(e002Key, x002Key);
+        	bank.setDigests(KeyUtil.getKeyDigest(e002Key), KeyUtil.getKeyDigest(x002Key));
+    	}
+    	
+        EbicsSession session = new EbicsSession(user, partner, bank, configuration);
+        session.setProduct(this.defaultProduct);
         return session;
     }
 
@@ -103,15 +114,8 @@ public class EbicsClient {
      *            does the bank use certificates ?
      * @return the created ebics bank
      */
-    private Bank createBank(URL url, String name, String hostId, boolean useCertificate) {
-    	if (banks.containsKey(hostId))
-    	{
-    		return banks.get(hostId);
-    	}
-    	
-        Bank bank = new Bank(url, name, hostId, useCertificate);
-        banks.put(hostId, bank);
-        return bank;
+    public Params createBank(URL url, String name, String hostId, boolean useCertificate) {
+        return new Bank(url, name, hostId, useCertificate).export();
     }
 
     /**
@@ -122,15 +126,8 @@ public class EbicsClient {
      * @param partnerId
      *            the partner ID
      */
-    private Partner createPartner(EbicsBank bank, String partnerId) {
-    	if (partners.containsKey(partnerId))
-    	{
-    		return partners.get(partnerId);
-    	}
-    	
-        Partner partner = new Partner(bank, partnerId);
-        partners.put(partnerId, partner);
-        return partner;
+    public Params createPartner(String partnerId, String hostId) {
+        return new Partner(partnerId, hostId).export();
     }
 
 
@@ -166,145 +163,34 @@ public class EbicsClient {
      * @return
      * @throws Exception
      */
-    public void createUser(String url, String bankName, boolean bankUseCertificate, String hostId, String partnerId,
-        String userId, String name, String email, String country, String organization, String password)
+    public Params createUser(String partnerId, String userId, String name, String email, String country, String organization, String password)
         throws Exception {
 
-
-        Bank bank = createBank(new URL(url), bankName, hostId, bankUseCertificate);
-        Partner partner = createPartner(bank, partnerId);
-        try {
-            User user = new User(partner, userId, name, email, country, organization,
-                createPasswordCallback(password));
-
-            users.put(userId, user);
-
-            
-            configuration.getLogger().info(
-                Messages.getString("user.create.success", Constants.APPLICATION_BUNDLE_NAME, userId));
-        } catch (Exception e) {
-            configuration.getLogger().error(
-                Messages.getString("user.create.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            throw e;
-        }
+        return new User(userId, partnerId, name, email, country, organization,
+            createPasswordCallback(password)).export();
     }
     
    
 
-    /**
-     * Loads a user knowing its ID
-     *
-     * @throws Exception
-     */
-    public void loadUser(UserParams userParams, BankParams bankParams, PartnerParams partnerParams, 
-    		byte[] keyStore, BankKeys bankKeys,
-    		String password) 
-    	throws Exception {
-        try {
-            Bank bank;
-            Partner partner;
-            User user;
-        	
-            if (!banks.containsKey(bankParams.Id)) {
-            	bank = new Bank(bankParams);
-            	
-            	if (bankKeys != null) {
-                	RSAPublicKey e002Key = KeyUtil.getPublicKeyFromData(bankKeys.E002Key);
-                	RSAPublicKey x002Key = KeyUtil.getPublicKeyFromData(bankKeys.X002Key);
-                	
-                	bank.setBankKeys(e002Key, x002Key);
-                	bank.setDigests(KeyUtil.getKeyDigest(e002Key), KeyUtil.getKeyDigest(x002Key));
-            	}
-           	
-            	
-            	banks.put(bank.getHostId(), bank);
-            }
-            else {
-            	bank = banks.get(bankParams.Id);
-            }
-
-            
-            if (!partners.containsKey(partnerParams.Id)) {
-            	partner = new Partner (bank, partnerParams);
-            	partners.put(partner.getPartnerId(), partner);
-            }
-            else {
-            	partner = partners.get(partnerParams.Id);
-            }
- 
-            
-            if (!users.containsKey(userParams.Id)) {
-            	user = new User(partner, userParams, keyStore, createPasswordCallback(password));
-                users.put(user.getUserId(), user);
-            }
-            else {
-            	user = users.get(userParams.Id);
-            }
-
-
-            configuration.getLogger().info(
-                Messages.getString("user.load.success", Constants.APPLICATION_BUNDLE_NAME, user.getUserId()));
-        } catch (Exception e) {
-            configuration.getLogger().error(
-                Messages.getString("user.load.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            throw e;
-        }
-    }
-
     
     
-    public Params exportBankParams(String hostId) throws EbicsException {
-    	if(!banks.containsKey(hostId)) {
-    		throw new EbicsException("Bank not found");
-    	}
-		return banks.get(hostId).export();
+    public byte[] generateKeyStore(EbicsSession session) throws EbicsException, IOException, GeneralSecurityException{
+		User user = (User) session.getUser();
+		user.createUserCertificates();
+		
+		return user.exportKeyStore();
     }
     
-    public Params exportPartnerParams(String partnerId) throws EbicsException {
-    	if(!partners.containsKey(partnerId)) {
-    		throw new EbicsException("Partner not found");
-    	}
-		return partners.get(partnerId).export();
-    }
     
-    public Params exportUserParams(String userId) throws EbicsException {
-    	if(!users.containsKey(userId)) {
-    		throw new EbicsException("User not found");
-    	}
-		return users.get(userId).export();
-    }
-    
-    public Params exportBankKeys(String hostId) throws EbicsException {
-    	if(!banks.containsKey(hostId)) {
-    		throw new EbicsException("Bank not found");
+    public BankKeys exportBankKeys(EbicsSession session) throws Exception {
+    	Bank bank = (Bank) session.getBank();
+    	
+    	if (bank.getE002Key() == null || bank.getX002Key() == null) {
+    		return null;
     	}
     	
-    	Bank bank = banks.get(hostId);
-    	
-    	return new BankKeys(hostId, bank.getE002Key().getEncoded(), bank.getX002Key().getEncoded());
+    	return new BankKeys(bank.getHostId(), bank.getE002Key().getEncoded(), bank.getX002Key().getEncoded());
     }
-    
-    
-    
-    
-    public byte[] exportKeyStore(String userId) throws EbicsException, IOException, GeneralSecurityException{
-    	if(!users.containsKey(userId)) {
-    		throw new EbicsException("User not found");
-    	}
-    	
-		User user = users.get(userId);
-    	
-    	try {
-			return user.exportKeyStore();
-		} catch (GeneralSecurityException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			
-			throw e;
-		}
-    }
-    
-     
     
     
     
@@ -319,33 +205,9 @@ public class EbicsClient {
      *            the application product
      * @throws Exception
      */
-    public void sendINIRequest(String userId) throws Exception {
-    	if(!users.containsKey(userId)) {
-    		throw new EbicsException("User not found");
-    	}
-    	
-		User user = users.get(userId);
-        configuration.getLogger().info(
-            Messages.getString("ini.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
-        if (user.isInitialized()) {
-            configuration.getLogger().info(
-                Messages.getString("user.already.initialized", Constants.APPLICATION_BUNDLE_NAME,
-                    userId));
-            return;
-        }
-        EbicsSession session = createSession(user, this.defaultProduct);
+    public void sendINIRequest(EbicsSession session) throws Exception {
         KeyManagement keyManager = new KeyManagement(session);
-
-        try {
-            keyManager.sendINI(null);
-            user.setInitialized(true);
-            configuration.getLogger().info(
-                Messages.getString("ini.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
-        } catch (Exception e) {
-            configuration.getLogger().error(
-                Messages.getString("ini.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
-            throw e;
-        }
+        keyManager.sendINI(null);
     }
 
     /**
@@ -357,62 +219,21 @@ public class EbicsClient {
      *            the application product.
      * @throws Exception
      */
-    public void sendHIARequest(String userId) throws Exception {
-    	if(!users.containsKey(userId)) {
-    		throw new EbicsException("User not found");
-    	}
-    	
-		User user = users.get(userId);
-        configuration.getLogger().info(
-            Messages.getString("hia.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
-        if (user.isInitializedHIA()) {
-            configuration.getLogger().info(
-                Messages.getString("user.already.hia.initialized",
-                    Constants.APPLICATION_BUNDLE_NAME, userId));
-            return;
-        }
-        EbicsSession session = createSession(user, this.defaultProduct);
+    public void sendHIARequest(EbicsSession session) throws Exception {
         KeyManagement keyManager = new KeyManagement(session);
-
-        try {
-            keyManager.sendHIA(null);
-            user.setInitializedHIA(true);
-        } catch (Exception e) {
-            configuration.getLogger().error(
-                Messages.getString("hia.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
-            throw e;
-        }
-        configuration.getLogger().info(
-            Messages.getString("hia.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+        keyManager.sendHIA(null);
     }
 
     /**
      * Sends a HPB request to the ebics server.
      */
-    public byte[] sendHPBRequest(String userId, byte[] keyStore) throws Exception {
-    	if(!users.containsKey(userId)) {
-    		throw new EbicsException("User not found");
-    	}
-    	
-		User user = users.get(userId);
-        configuration.getLogger().info(
-            Messages.getString("hpb.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
-
-        EbicsSession session = createSession(user, this.defaultProduct);
+    public byte[] sendHPBRequest(EbicsSession session) throws Exception {
         KeyManagement keyManager = new KeyManagement(session);
+        User user = (User) session.getUser();
 
+        byte[] updatedKeyStore = keyManager.sendHPB(user.exportKeyStore()); // exportKeyStore??
 
-        try {
-            byte[] updatedKeyStore = keyManager.sendHPB(keyStore);
-            configuration.getLogger().info(
-                Messages.getString("hpb.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
-            
-            return updatedKeyStore;
-        } catch (Exception e) {
-            configuration.getLogger().error(
-                Messages.getString("hpb.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
-            throw e;
-        }
+        return updatedKeyStore;
     }
 
     /**
@@ -424,50 +245,23 @@ public class EbicsClient {
      *            the session product
      * @throws Exception
      */
-    public void revokeSubscriber(String userId) throws Exception {
-    	if(!users.containsKey(userId)) {
-    		throw new EbicsException("User not found");
-    	}
-    	
-		User user = users.get(userId);
-
-        configuration.getLogger().info(
-            Messages.getString("spr.request.send", Constants.APPLICATION_BUNDLE_NAME, userId));
-
-        EbicsSession session = createSession(user, this.defaultProduct);
+    public void revokeSubscriber(EbicsSession session) throws Exception {
         KeyManagement keyManager = new KeyManagement(session);
-
-        try {
-            keyManager.lockAccess();
-        } catch (Exception e) {
-            configuration.getLogger().error(
-                Messages.getString("spr.send.error", Constants.APPLICATION_BUNDLE_NAME, userId), e);
-            throw e;
-        }
-
-        configuration.getLogger().info(
-            Messages.getString("spr.send.success", Constants.APPLICATION_BUNDLE_NAME, userId));
+        keyManager.lockAccess();
     }
 
     /**
      * Sends a file to the ebics bank server
      * @throws Exception
      */
-    public void sendFile(byte[] fileContent, String userId, OrderType orderType) throws Exception {
-    	if(!users.containsKey(userId)) {
-    		throw new EbicsException("User not found");
-    	}
-    	
-		User user = users.get(userId);
-    	
-        EbicsSession session = createSession(user, this.defaultProduct);
+    public void sendFile(EbicsSession session, OrderType orderType, byte[] fileContent) throws Exception {
         String format = null;
         String orderAttribute = "DZHNN";
 
         if (orderType == OrderType.XKD) {
             orderAttribute = "OZHNN";
         } else {
-            format = "pain.xxx.cfonb160.dct";
+            format = "pain.xxx.cfonb160.dct"; // ???
         }
 
         if (format != null) {
@@ -475,58 +269,24 @@ public class EbicsClient {
         }
 
         FileTransfer transferManager = new FileTransfer(session);
-
-        try {
-            transferManager.sendFile(fileContent, orderType, orderAttribute);
-        } catch (IOException | EbicsException e) {
-            configuration.getLogger().error(
-                Messages.getString("upload.file.error", Constants.APPLICATION_BUNDLE_NAME,
-                    ""), e);
-            throw e;
-        }
+        transferManager.sendFile(fileContent, orderType, orderAttribute);
     }
 
-    public byte[] fetchFile(String userId, OrderType orderType,
-        boolean isTest, Date start, Date end) throws IOException, EbicsException {
-    	if(!users.containsKey(userId)) {
-    		throw new EbicsException("User not found");
-    	}
-    	
-		User user = users.get(userId);
-    	
+    public byte[] fetchFile(EbicsSession session, OrderType orderType, Date start, Date end, boolean isTest) throws IOException, EbicsException {
         FileTransfer transferManager;
-        EbicsSession session = createSession(user, this.defaultProduct);
-        session.addSessionParam("FORMAT", "pain.xxx.cfonb160.dct");
+
+        session.addSessionParam("FORMAT", "pain.xxx.cfonb160.dct"); // ???
         if (isTest) {
             session.addSessionParam("TEST", "true");
         }
+        
         transferManager = new FileTransfer(session);
-
-
-        try {
-            return transferManager.fetchFile(orderType, start, end);
-        } catch (Exception e) {
-            configuration.getLogger().error(
-                Messages.getString("download.file.error", Constants.APPLICATION_BUNDLE_NAME), e);
-            throw e;
-        }
-    }
-
-    public byte[] fetchFile(String userId, OrderType orderType, Date start, Date end) throws IOException,
-        EbicsException {
-        return fetchFile(userId, orderType, false, start, end);
-    }
-
-    /**
-     * Performs buffers save before quitting the client application.
-     */
-    public void clear() {
-    	this.users.clear();
-    	this.partners.clear();
-    	this.banks.clear();
+        return transferManager.fetchFile(orderType, start, end);
     }
 
 
+    
+    
     
     
     public static EbicsClient createEbicsClient(String language, String country, String productName, String traceDir) throws FileNotFoundException,
