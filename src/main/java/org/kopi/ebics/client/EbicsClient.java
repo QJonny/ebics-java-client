@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.client;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -36,6 +37,8 @@ import org.kopi.ebics.certificate.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.interfaces.EbicsBank;
+import org.kopi.ebics.interfaces.InitLetter;
+import org.kopi.ebics.interfaces.LetterManager;
 import org.kopi.ebics.interfaces.PasswordCallback;
 import org.kopi.ebics.interfaces.SerializationManager;
 import org.kopi.ebics.messages.Messages;
@@ -114,7 +117,7 @@ public class EbicsClient {
      *            does the bank use certificates ?
      * @return the created ebics bank
      */
-    public Params createBank(URL url, String name, String hostId, boolean useCertificate) {
+    public Params createBank(String hostId, URL url, String name, boolean useCertificate) {
         return new Bank(url, name, hostId, useCertificate).export();
     }
 
@@ -163,15 +166,32 @@ public class EbicsClient {
      * @return
      * @throws Exception
      */
-    public Params createUser(String partnerId, String userId, String name, String email, String country, String organization, String password)
+    public Params createUser(String userId, String partnerId, String name, String email, String country, String organization)
         throws Exception {
 
-        return new User(userId, partnerId, name, email, country, organization,
-            createPasswordCallback(password)).export();
+        return new User(userId, partnerId, name, email, country, organization, null).export();
     }
     
    
 
+    public Letters createLetters(EbicsSession session)
+        throws GeneralSecurityException, EbicsException, IOException {
+        LetterManager letterManager = configuration.getLetterManager();
+        
+        ByteArrayOutputStream a005Stream = new ByteArrayOutputStream();
+        ByteArrayOutputStream e002Stream = new ByteArrayOutputStream();
+        ByteArrayOutputStream x002Stream = new ByteArrayOutputStream();
+        
+        InitLetter a005Letter = letterManager.createA005Letter(session);
+        InitLetter e002Letter = letterManager.createE002Letter(session);
+        InitLetter x002Letter = letterManager.createX002Letter(session);
+        
+        a005Letter.writeTo(a005Stream);
+        e002Letter.writeTo(e002Stream);
+        x002Letter.writeTo(x002Stream);
+        
+        return new Letters(a005Stream.toByteArray(), e002Stream.toByteArray(), x002Stream.toByteArray());
+    }
     
     
     public byte[] generateKeyStore(EbicsSession session) throws EbicsException, IOException, GeneralSecurityException{
