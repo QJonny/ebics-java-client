@@ -26,6 +26,8 @@ import java.util.Map;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.Configuration;
+import org.kopi.ebics.interfaces.EbicsBank;
+import org.kopi.ebics.interfaces.EbicsPartner;
 import org.kopi.ebics.interfaces.EbicsUser;
 
 
@@ -42,8 +44,10 @@ public class EbicsSession {
    * @param user the ebics user
    * @param the ebics client configuration
    */
-  public EbicsSession(EbicsUser user, Configuration configuration) {
+  public EbicsSession(EbicsUser user, EbicsPartner partner, EbicsBank bank, Configuration configuration) {
     this.user = user;
+    this.partner = partner;
+    this.bank = bank;
     this.configuration = configuration;
     parameters = new HashMap<String, String>();
   }
@@ -56,7 +60,7 @@ public class EbicsSession {
    * @throws EbicsException Server error message generated during key retrieval.
    */
   public RSAPublicKey getBankE002Key() throws IOException, EbicsException {
-    return user.getPartner().getBank().getE002Key();
+    return bank.getE002Key();
   }
 
   /**
@@ -67,7 +71,7 @@ public class EbicsSession {
    * @throws EbicsException Server error message generated during key retrieval.
    */
   public RSAPublicKey getBankX002Key() throws IOException, EbicsException {
-    return user.getPartner().getBank().getX002Key();
+    return bank.getX002Key();
   }
 
   /**
@@ -76,7 +80,7 @@ public class EbicsSession {
    * @throws EbicsException
    */
   public String getBankID() throws EbicsException {
-    return user.getPartner().getBank().getHostId();
+    return bank.getHostId();
   }
 
   /**
@@ -85,6 +89,22 @@ public class EbicsSession {
    */
   public EbicsUser getUser() {
     return user;
+  }
+
+  /**
+   * Return the session user.
+   * @return the session user.
+   */
+  public EbicsPartner getPartner() {
+    return partner;
+  }
+
+  /**
+   * Return the session user.
+   * @return the session user.
+   */
+  public EbicsBank getBank() {
+    return bank;
   }
 
   /**
@@ -137,6 +157,8 @@ public class EbicsSession {
   // --------------------------------------------------------------------
 
   private EbicsUser				user;
+  private EbicsPartner				partner;
+  private EbicsBank					bank;
   private Configuration 			configuration;
   private Product				product;
   private Map<String, String>			parameters;
