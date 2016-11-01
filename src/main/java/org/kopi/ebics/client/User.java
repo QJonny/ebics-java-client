@@ -85,11 +85,10 @@ public class User implements EbicsUser, Savable, Exportable {
     this.name = name;
     this.dn = makeDN(name, email, country, organization);
     this.passwordCallback = passwordCallback;
-    createUserCertificates();
   }
   
   
-  public User(UserParams params, byte[] keyStore, PasswordCallback passwordCallback)
+  public User(UserParams params, PasswordCallback passwordCallback)
        throws GeneralSecurityException, IOException
 	{
 		this.partnerId = params.PartnerId;
@@ -97,7 +96,6 @@ public class User implements EbicsUser, Savable, Exportable {
 		this.name = params.Name;
 		this.dn = params.Dn;
 		this.passwordCallback = passwordCallback;
-		loadCertificates(keyStore);
 	}
   
 
@@ -135,7 +133,7 @@ public class User implements EbicsUser, Savable, Exportable {
    * @throws GeneralSecurityException
    * @throws IOException
    */
-  private void createUserCertificates() throws GeneralSecurityException, IOException {
+  public void createUserCertificates() throws GeneralSecurityException, IOException {
     manager = new CertificateManager(this);
     manager.create();
   }
@@ -160,7 +158,7 @@ public class User implements EbicsUser, Savable, Exportable {
    * @throws GeneralSecurityException
    * @throws IOException
    */
-  private void loadCertificates(byte[] keyStore)
+  public void loadCertificates(byte[] keyStore)
     throws GeneralSecurityException, IOException
   {
     manager = new CertificateManager(this);
