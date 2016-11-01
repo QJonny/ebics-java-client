@@ -25,6 +25,7 @@ import java.security.MessageDigest;
 
 import org.apache.commons.codec.binary.Hex;
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.EbicsPartner;
 import org.kopi.ebics.interfaces.EbicsUser;
 import org.kopi.ebics.schema.s001.OrderSignatureDataType;
 import org.kopi.ebics.schema.s001.UserSignatureDataSigBookType;
@@ -48,11 +49,13 @@ public class UserSignature extends DefaultEbicsRootElement {
    * @param toSign the data to be signed
    */
   public UserSignature(EbicsUser user,
+		  			   EbicsPartner partner,
                        String name,
                        String signatureVersion,
                        byte[] toSign)
   {
     this.user = user;
+    this.partner = partner;
     this.toSign = toSign;
     this.name = name;
     this.signatureVersion = signatureVersion;
@@ -73,7 +76,7 @@ public class UserSignature extends DefaultEbicsRootElement {
     }
 
     orderSignatureData = EbicsXmlFactory.createOrderSignatureDataType(signatureVersion,
-                                                                      user.getPartner().getPartnerId(),
+                                                                      this.partner.getPartnerId(),
                                                                       user.getUserId(),
                                                                       signature);
     userSignatureData = EbicsXmlFactory.createUserSignatureDataSigBookType(new OrderSignatureDataType[] {orderSignatureData});
@@ -97,6 +100,7 @@ public class UserSignature extends DefaultEbicsRootElement {
   // --------------------------------------------------------------------
 
   private EbicsUser 			user;
+  private EbicsPartner			partner;
   private String 			signatureVersion;
   private byte[]			toSign;
   private String			name;

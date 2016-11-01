@@ -100,7 +100,8 @@ public class UploadInitializationRequestElement extends InitializationRequestEle
     FileFormatType 			fileFormat;
 
     userSignature = new UserSignature(session.getUser(),
-				      generateName("UserSignature"),
+			    				  session.getPartner(),
+							      generateName("UserSignature"),
 	                              session.getConfiguration().getSignatureVersion(),
 	                              userData);
     userSignature.build();
