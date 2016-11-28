@@ -44,11 +44,10 @@ public class EbicsSession {
    * @param user the ebics user
    * @param the ebics client configuration
    */
-  public EbicsSession(EbicsUser user, EbicsPartner partner, EbicsBank bank, Configuration configuration) {
+  public EbicsSession(EbicsUser user, EbicsPartner partner, EbicsBank bank) {
     this.user = user;
     this.partner = partner;
     this.bank = bank;
-    this.configuration = configuration;
     parameters = new HashMap<String, String>();
   }
 
@@ -111,9 +110,9 @@ public class EbicsSession {
    * Returns the client application configuration.
    * @return the client application configuration.
    */
-  public Configuration getConfiguration() {
+  /*public Configuration getConfiguration() {
     return configuration;
-  }
+  }*/
 
   /**
    * Sets the optional product identification that will be sent to the bank during each request.
@@ -159,7 +158,6 @@ public class EbicsSession {
   private EbicsUser				user;
   private EbicsPartner				partner;
   private EbicsBank					bank;
-  private Configuration 			configuration;
   private Product				product;
   private Map<String, String>			parameters;
 }
