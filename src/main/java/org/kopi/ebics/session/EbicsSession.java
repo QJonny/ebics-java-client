@@ -106,28 +106,8 @@ public class EbicsSession {
     return bank;
   }
 
-  /**
-   * Returns the client application configuration.
-   * @return the client application configuration.
-   */
-  /*public Configuration getConfiguration() {
-    return configuration;
-  }*/
 
-  /**
-   * Sets the optional product identification that will be sent to the bank during each request.
-   * @param product Product description
-   */
-  public void setProduct(Product product) {
-    this.product = product;
-  }
 
-  /**
-   * @return the product
-   */
-  public Product getProduct() {
-    return product;
-  }
 
   /**
    * Adds a session parameter to use it in the transfer process.
@@ -158,6 +138,5 @@ public class EbicsSession {
   private EbicsUser				user;
   private EbicsPartner				partner;
   private EbicsBank					bank;
-  private Product				product;
   private Map<String, String>			parameters;
 }
