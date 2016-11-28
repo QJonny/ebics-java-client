@@ -96,7 +96,7 @@ public class EbicsClient {
         	bank.setDigests(KeyUtil.getKeyDigest(e002Key), KeyUtil.getKeyDigest(x002Key));
     	}
     	
-        EbicsSession session = new EbicsSession(user, partner, bank, configuration);
+        EbicsSession session = new EbicsSession(user, partner, bank);
         session.setProduct(this.defaultProduct);
         return session;
     }
@@ -226,7 +226,7 @@ public class EbicsClient {
      * @throws Exception
      */
     public void sendINIRequest(EbicsSession session) throws Exception {
-        KeyManagement keyManager = new KeyManagement(session);
+        KeyManagement keyManager = new KeyManagement(session, this.configuration);
         keyManager.sendINI(null);
     }
 
@@ -240,7 +240,7 @@ public class EbicsClient {
      * @throws Exception
      */
     public void sendHIARequest(EbicsSession session) throws Exception {
-        KeyManagement keyManager = new KeyManagement(session);
+        KeyManagement keyManager = new KeyManagement(session, this.configuration);
         keyManager.sendHIA(null);
     }
 
@@ -248,7 +248,7 @@ public class EbicsClient {
      * Sends a HPB request to the ebics server.
      */
     public byte[] sendHPBRequest(EbicsSession session) throws Exception {
-        KeyManagement keyManager = new KeyManagement(session);
+        KeyManagement keyManager = new KeyManagement(session, this.configuration);
         User user = (User) session.getUser();
 
         byte[] updatedKeyStore = keyManager.sendHPB(user.exportKeyStore()); // exportKeyStore??
@@ -266,7 +266,7 @@ public class EbicsClient {
      * @throws Exception
      */
     public void revokeSubscriber(EbicsSession session) throws Exception {
-        KeyManagement keyManager = new KeyManagement(session);
+        KeyManagement keyManager = new KeyManagement(session, this.configuration);
         keyManager.lockAccess();
     }
 
@@ -274,9 +274,8 @@ public class EbicsClient {
      * Sends a file to the ebics bank server
      * @throws Exception
      */
-    public void sendFile(EbicsSession session, OrderType orderType, byte[] fileContent) throws Exception {
+    public void sendFile(EbicsSession session, OrderType orderType, byte[] fileContent, String orderAttribute) throws Exception {
         String format = null;
-        String orderAttribute = "DZHNN";
 
         if (orderType == OrderType.XKD) {
             orderAttribute = "OZHNN";
@@ -288,7 +287,7 @@ public class EbicsClient {
             session.addSessionParam("FORMAT", format);
         }
 
-        FileTransfer transferManager = new FileTransfer(session);
+        FileTransfer transferManager = new FileTransfer(session, this.configuration);
         transferManager.sendFile(fileContent, orderType, orderAttribute);
     }
 
@@ -300,7 +299,7 @@ public class EbicsClient {
             session.addSessionParam("TEST", "true");
         }
         
-        transferManager = new FileTransfer(session);
+        transferManager = new FileTransfer(session, this.configuration);
         return transferManager.fetchFile(orderType, start, end);
     }
 

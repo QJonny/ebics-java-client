@@ -50,6 +50,7 @@ import org.kopi.ebics.session.EbicsSession;
 public class HttpRequestSender {
 
     private final EbicsSession session;
+    private final Configuration configuration;
     private ContentFactory response;
 
     /**
@@ -59,8 +60,9 @@ public class HttpRequestSender {
      * @param session
      *            the ebics session
      */
-    public HttpRequestSender(EbicsSession session) {
+    public HttpRequestSender(EbicsSession session, Configuration configuration) {
         this.session = session;
+        this.configuration = configuration;
     }
 
     /**
@@ -76,7 +78,7 @@ public class HttpRequestSender {
         RequestConfig.Builder configBuilder = RequestConfig.copy(RequestConfig.DEFAULT).setSocketTimeout(
             300_000).setConnectTimeout(300_000);
 
-        Configuration conf = session.getConfiguration();
+        Configuration conf = this.configuration;
         String proxyHost = conf.getProperty("http.proxy.host");
         CredentialsProvider credsProvider = null;
 

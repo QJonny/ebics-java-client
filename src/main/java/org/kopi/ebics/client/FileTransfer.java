@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.ByteArrayContentFactory;
 import org.kopi.ebics.io.Joiner;
@@ -83,8 +84,9 @@ public class FileTransfer {
    * Constructs a new FileTransfer session
    * @param session the user session
    */
-  public FileTransfer(EbicsSession session) {
+  public FileTransfer(EbicsSession session, Configuration configuration) {
     this.session = session;
+    this.configuration = configuration;
   }
 
   /**
@@ -97,14 +99,15 @@ public class FileTransfer {
   public void sendFile(byte[] content, OrderType orderType, String orderAttribute)
     throws IOException, EbicsException
   {
-    HttpRequestSender sender = new HttpRequestSender(session);
+    HttpRequestSender sender = new HttpRequestSender(session, this.configuration);
     UploadInitializationRequestElement initializer = new UploadInitializationRequestElement(session,
+    		 									this.configuration,
 	                                            orderType, orderAttribute,
 	                                            content);
     initializer.build();
     initializer.validate();
-    session.getConfiguration().getTraceManager().trace(initializer.getUserSignature());
-    session.getConfiguration().getTraceManager().trace(initializer);
+    this.configuration.getTraceManager().trace(initializer.getUserSignature());
+    this.configuration.getTraceManager().trace(initializer);
     int httpCode = sender.send(new ByteArrayContentFactory(initializer.prettyPrint()));
 
     Utils.checkHttpCode(httpCode);
@@ -112,7 +115,7 @@ public class FileTransfer {
 	                                         orderType,
 	                                         DefaultEbicsRootElement.generateName(orderType));
     response.build();
-    session.getConfiguration().getTraceManager().trace(response);
+    this.configuration.getTraceManager().trace(response);
 
     TransferState state = new TransferState(initializer.getSegmentNumber(), response.getTransactionId());
 
@@ -147,21 +150,22 @@ public class FileTransfer {
 
 
     uploader = new UploadTransferRequestElement(session,
+    		 						   this.configuration,
 	                                   orderType,
 	                                   segmentNumber,
 	                                   lastSegment,
 	                                   transactionId,
 	                                   factory);
-    sender = new HttpRequestSender(session);
+    sender = new HttpRequestSender(session, this.configuration);
     uploader.build();
     uploader.validate();
-    session.getConfiguration().getTraceManager().trace(uploader);
+    this.configuration.getTraceManager().trace(uploader);
     httpCode = sender.send(new ByteArrayContentFactory(uploader.prettyPrint()));
     Utils.checkHttpCode(httpCode);
     response = new TransferResponseElement(sender.getResponseBody(),
 	                                   DefaultEbicsRootElement.generateName(orderType));
     response.build();
-    session.getConfiguration().getTraceManager().trace(response);
+    this.configuration.getTraceManager().trace(response);
   }
 
   /**
@@ -191,15 +195,16 @@ public class FileTransfer {
     Joiner				joiner;
     ByteArrayOutputStream dest = new ByteArrayOutputStream();
 
-    sender = new HttpRequestSender(session);
+    sender = new HttpRequestSender(session, this.configuration);
     initializer = new DownloadInitializationRequestElement(session,
+    		 									this.configuration,
 	                                            orderType,
 	                                            start,
 	                                            end);
     initializer.build();
     initializer.validate();
 
-    session.getConfiguration().getTraceManager().trace(initializer);
+    this.configuration.getTraceManager().trace(initializer);
     httpCode = sender.send(new ByteArrayContentFactory(initializer.prettyPrint()));
     Utils.checkHttpCode(httpCode);
     response = new DownloadInitializationResponseElement(sender.getResponseBody(),
@@ -207,7 +212,7 @@ public class FileTransfer {
 	                                          DefaultEbicsRootElement.generateName(orderType));
 
     response.build();
-    session.getConfiguration().getTraceManager().trace(response);
+    this.configuration.getTraceManager().trace(response);
     response.report();
     state = new TransferState(response.getSegmentsNumber(), response.getTransactionId());
     state.setSegmentNumber(response.getSegmentNumber());
@@ -226,18 +231,19 @@ public class FileTransfer {
 
 
     joiner.writeTo(dest, response.getTransactionKey());
-    receipt = new ReceiptRequestElement(session,
+    receipt = new ReceiptRequestElement(session, 
+    								this.configuration,
 	                                state.getTransactionId(),
 	                                DefaultEbicsRootElement.generateName(orderType));
     receipt.build();
     receipt.validate();
-    session.getConfiguration().getTraceManager().trace(receipt);
+    this.configuration.getTraceManager().trace(receipt);
     httpCode = sender.send(new ByteArrayContentFactory(receipt.prettyPrint()));
     Utils.checkHttpCode(httpCode);
     receiptResponse = new ReceiptResponseElement(sender.getResponseBody(),
 	                                         DefaultEbicsRootElement.generateName(orderType));
     receiptResponse.build();
-    session.getConfiguration().getTraceManager().trace(receiptResponse);
+    this.configuration.getTraceManager().trace(receiptResponse);
     receiptResponse.report();
     
     return dest.toByteArray();
@@ -265,22 +271,23 @@ public class FileTransfer {
     DownloadTransferResponseElement		response;
     int					httpCode;
 
-    sender = new HttpRequestSender(session);
+    sender = new HttpRequestSender(session, this.configuration);
     downloader = new DownloadTransferRequestElement(session,
+    		 							 this.configuration,
 	                                     orderType,
 	                                     segmentNumber,
 	                                     lastSegment,
 	                                     transactionId);
     downloader.build();
     downloader.validate();
-    session.getConfiguration().getTraceManager().trace(downloader);
+    this.configuration.getTraceManager().trace(downloader);
     httpCode = sender.send(new ByteArrayContentFactory(downloader.prettyPrint()));
     Utils.checkHttpCode(httpCode);
     response = new DownloadTransferResponseElement(sender.getResponseBody(),
 	                                    orderType,
 	                                    DefaultEbicsRootElement.generateName(orderType));
     response.build();
-    session.getConfiguration().getTraceManager().trace(response);
+    this.configuration.getTraceManager().trace(response);
     response.report();
     joiner.append(response.getOrderData());
   }
@@ -290,4 +297,5 @@ public class FileTransfer {
   // --------------------------------------------------------------------
 
   private EbicsSession			session;
+  private Configuration			configuration;
 }
