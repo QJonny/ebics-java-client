@@ -20,6 +20,7 @@
 package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.utils.Utils;
@@ -39,8 +40,8 @@ public class HIARequestElement extends DefaultEbicsRootElement {
    * @param session the current ebics session
    * @param orderId the order id, if null a random one is generated.
    */
-  public HIARequestElement(EbicsSession session, String orderId) {
-    super(session);
+  public HIARequestElement(EbicsSession session, Configuration configuration, String orderId) {
+    super(session, configuration);
     this.orderId = orderId;
   }
 
@@ -53,9 +54,10 @@ public class HIARequestElement extends DefaultEbicsRootElement {
   public void build() throws EbicsException {
     HIARequestOrderDataElement		requestOrderData;
 
-    requestOrderData = new HIARequestOrderDataElement(session);
+    requestOrderData = new HIARequestOrderDataElement(session, this.configuration);
     requestOrderData.build();
     unsecuredRequest = new UnsecuredRequestElement(session,
+    										   this.configuration,
 	                                           OrderType.HIA,
 	                                           orderId == null ? session.getPartner().nextOrderId() : orderId,
 	                                           Utils.zip(requestOrderData.prettyPrint()));

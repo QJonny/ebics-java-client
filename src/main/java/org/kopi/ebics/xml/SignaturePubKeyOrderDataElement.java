@@ -22,6 +22,7 @@ package org.kopi.ebics.xml;
 import java.util.Calendar;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.s001.PubKeyValueType;
 import org.kopi.ebics.schema.s001.SignaturePubKeyInfoType;
 import org.kopi.ebics.schema.s001.SignaturePubKeyOrderDataType;
@@ -43,8 +44,8 @@ public class SignaturePubKeyOrderDataElement extends DefaultEbicsRootElement {
    * Creates a new Signature Public Key Order Data element.
    * @param session the current ebics session
    */
-  public SignaturePubKeyOrderDataElement(EbicsSession session) {
-    super(session);
+  public SignaturePubKeyOrderDataElement(EbicsSession session, Configuration configuration) {
+    super(session, configuration);
   }
 
   @Override
@@ -64,7 +65,7 @@ public class SignaturePubKeyOrderDataElement extends DefaultEbicsRootElement {
     pubKeyValue = EbicsXmlFactory.createPubKeyValueType(rsaKeyValue, Calendar.getInstance());
     signaturePubKeyInfo = EbicsXmlFactory.createSignaturePubKeyInfoType(x509Data,
 	                                                                pubKeyValue,
-	                                                                session.getConfiguration().getSignatureVersion());
+	                                                                this.configuration.getSignatureVersion());
     signaturePubKeyOrderData = EbicsXmlFactory.createSignaturePubKeyOrderData(signaturePubKeyInfo,
 									      session.getPartner().getPartnerId(),
 									      session.getUser().getUserId());

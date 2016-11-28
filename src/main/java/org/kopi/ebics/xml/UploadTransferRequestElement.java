@@ -20,6 +20,7 @@
 package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.schema.h003.DataTransferRequestType;
@@ -51,14 +52,15 @@ public class UploadTransferRequestElement extends TransferRequestElement {
    * @param transactionId the transaction ID
    * @param content the content factory
    */
-  public UploadTransferRequestElement(EbicsSession session,
+  public UploadTransferRequestElement(EbicsSession session, 
+		  						 Configuration configuration,
                                  OrderType orderType,
                                  int segmentNumber,
                                  boolean lastSegment,
                                  byte[] transactionId,
                                  ContentFactory content)
   {
-    super(session, generateName(orderType), orderType, segmentNumber, lastSegment, transactionId);
+    super(session, configuration, generateName(orderType), orderType, segmentNumber, lastSegment, transactionId);
     this.content = content;
   }
 
@@ -80,8 +82,8 @@ public class UploadTransferRequestElement extends TransferRequestElement {
     orderData = EbicsXmlFactory.createEbicsRequestOrderData(IOUtils.getFactoryContent(content));
     dataTransfer = EbicsXmlFactory.createDataTransferRequestType(orderData);
     body = EbicsXmlFactory.createEbicsRequestBody(dataTransfer);
-    request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-	                                         session.getConfiguration().getVersion(),
+    request = EbicsXmlFactory.createEbicsRequest(this.configuration.getRevision(),
+	                                         this.configuration.getVersion(),
 	                                         header,
 	                                         body);
     document = EbicsXmlFactory.createEbicsRequestDocument(request);

@@ -21,6 +21,7 @@ package org.kopi.ebics.xml;
 import java.util.Calendar;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.AuthenticationPubKeyInfoType;
 import org.kopi.ebics.schema.h003.EncryptionPubKeyInfoType;
 import org.kopi.ebics.schema.h003.HIARequestOrderDataType;
@@ -44,8 +45,8 @@ public class HIARequestOrderDataElement extends DefaultEbicsRootElement {
    * Constructs a new HIA Request Order Data element
    * @param session the current ebics session
    */
-  public HIARequestOrderDataElement(EbicsSession session) {
-    super(session);
+  public HIARequestOrderDataElement(EbicsSession session, Configuration configuration) {
+    super(session, configuration);
   }
 
   @Override
@@ -67,7 +68,7 @@ public class HIARequestOrderDataElement extends DefaultEbicsRootElement {
     encryptionRsaKeyValue = EbicsXmlFactory.createRSAKeyValueType(session.getUser().getE002PublicKey().getPublicExponent().toByteArray(),
 	                                                          session.getUser().getE002PublicKey().getModulus().toByteArray());
     encryptionPubKeyValue = EbicsXmlFactory.createH003PubKeyValueType(encryptionRsaKeyValue, Calendar.getInstance());
-    encryptionPubKeyInfo = EbicsXmlFactory.createEncryptionPubKeyInfoType(session.getConfiguration().getEncryptionVersion(),
+    encryptionPubKeyInfo = EbicsXmlFactory.createEncryptionPubKeyInfoType(this.configuration.getEncryptionVersion(),
 	                                                                  encryptionPubKeyValue,
 	                                                                  encryptionX509Data);
     authX509Data = null;
@@ -77,7 +78,7 @@ public class HIARequestOrderDataElement extends DefaultEbicsRootElement {
     AuthRsaKeyValue = EbicsXmlFactory.createRSAKeyValueType(session.getUser().getX002PublicKey().getPublicExponent().toByteArray(),
 							    session.getUser().getX002PublicKey().getModulus().toByteArray());
     authPubKeyValue = EbicsXmlFactory.createH003PubKeyValueType(AuthRsaKeyValue, Calendar.getInstance());
-    authenticationPubKeyInfo = EbicsXmlFactory.createAuthenticationPubKeyInfoType(session.getConfiguration().getAuthenticationVersion(),
+    authenticationPubKeyInfo = EbicsXmlFactory.createAuthenticationPubKeyInfoType(this.configuration.getAuthenticationVersion(),
 	                                                                          authPubKeyValue,
 	                                                                          authX509Data);
     request = EbicsXmlFactory.createHIARequestOrderDataType(authenticationPubKeyInfo,

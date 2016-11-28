@@ -20,6 +20,7 @@
 package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.MutableHeaderType;
 import org.kopi.ebics.schema.h003.StaticHeaderType;
 import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest;
@@ -46,13 +47,14 @@ public class DownloadTransferRequestElement extends TransferRequestElement {
    * @param lastSegment is it the last segment?
    * @param transactionId the transaction ID
    */
-  public DownloadTransferRequestElement(EbicsSession session,
+  public DownloadTransferRequestElement(EbicsSession session, 
+		  						 Configuration configuration,
                                  OrderType type,
                                  int segmentNumber,
                                  boolean lastSegment,
                                  byte[] transactionId)
   {
-    super(session, generateName(type), type, segmentNumber, lastSegment, transactionId);
+    super(session, configuration, generateName(type), type, segmentNumber, lastSegment, transactionId);
   }
 
   @Override
@@ -69,8 +71,8 @@ public class DownloadTransferRequestElement extends TransferRequestElement {
     xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
     header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
     body = EbicsXmlFactory.createEbicsRequestBody();
-    request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-        				         session.getConfiguration().getVersion(),
+    request = EbicsXmlFactory.createEbicsRequest(this.configuration.getRevision(),
+        				         this.configuration.getVersion(),
 	                                         header,
 	                                         body);
     document = EbicsXmlFactory.createEbicsRequestDocument(request);

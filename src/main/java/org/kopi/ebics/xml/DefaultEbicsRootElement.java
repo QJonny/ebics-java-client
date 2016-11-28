@@ -44,6 +44,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.interfaces.EbicsRootElement;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
@@ -55,8 +56,9 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
    * Constructs a new default <code>EbicsRootElement</code>
    * @param session the current ebics session
    */
-  public DefaultEbicsRootElement(EbicsSession session) {
+  public DefaultEbicsRootElement(EbicsSession session, Configuration configuration) {
     this.session = session;
+    this.configuration = configuration;
     suggestedPrefixes = new HashMap<String, String>();
   }
 
@@ -64,7 +66,7 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
    *  Constructs a new default <code>EbicsRootElement</code>
    */
   public DefaultEbicsRootElement() {
-    this(null);
+    this(null, null);
   }
 
   /**
@@ -229,6 +231,7 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
 
   protected XmlObject			document;
   protected EbicsSession 		session;
+  protected Configuration		configuration;
   private static Map<String, String> 	suggestedPrefixes;
   private static final long 		serialVersionUID = -3928957097145095177L;
 }

@@ -20,6 +20,7 @@
 package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.session.EbicsSession;
 
 /**
@@ -35,8 +36,8 @@ public class HPBRequestElement extends DefaultEbicsRootElement {
    * Constructs a new HPB Request element.
    * @param session the current ebics session.
    */
-  public HPBRequestElement(EbicsSession session) {
-    super(session);
+  public HPBRequestElement(EbicsSession session, Configuration configuration) {
+    super(session, configuration);
   }
 
   @Override
@@ -49,7 +50,7 @@ public class HPBRequestElement extends DefaultEbicsRootElement {
     SignedInfo			signedInfo;
     byte[]			signature;
 
-    noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session);
+    noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session, this.configuration);
     noPubKeyDigestsRequest.build();
     signedInfo = new SignedInfo(session.getUser(), noPubKeyDigestsRequest.getDigest());
     signedInfo.build();

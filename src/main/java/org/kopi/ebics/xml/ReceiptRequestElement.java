@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.EbicsRequestDocument;
 import org.kopi.ebics.schema.h003.MutableHeaderType;
 import org.kopi.ebics.schema.h003.StaticHeaderType;
@@ -49,11 +50,12 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
    * @param session the current ebics session
    * @param name the element name
    */
-  public ReceiptRequestElement(EbicsSession session,
+  public ReceiptRequestElement(EbicsSession session, 
+		  					   Configuration configuration,
                                byte[] transactionId,
                                String name)
   {
-    super(session);
+    super(session, configuration);
     this.transactionId = transactionId;
     this.name = name;
   }
@@ -73,8 +75,8 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
     header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
     transferReceipt = EbicsXmlFactory.createTransferReceipt(true, 0);
     body = EbicsXmlFactory.createEbicsRequestBody(transferReceipt);
-    request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-	                                         session.getConfiguration().getVersion(),
+    request = EbicsXmlFactory.createEbicsRequest(this.configuration.getRevision(),
+	                                         this.configuration.getVersion(),
 	                                         header,
 	                                         body);
     document = EbicsXmlFactory.createEbicsRequestDocument(request);

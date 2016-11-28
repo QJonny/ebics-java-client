@@ -25,6 +25,7 @@ import java.security.NoSuchProviderException;
 import java.util.Calendar;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument;
 import org.kopi.ebics.schema.h003.EmptyMutableHeaderType;
 import org.kopi.ebics.schema.h003.NoPubKeyDigestsRequestStaticHeaderType;
@@ -51,8 +52,8 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
    * Construct a new No Public Key Digests Request element.
    * @param session the current ebics session.
    */
-  public NoPubKeyDigestsRequestElement(EbicsSession session) {
-    super(session);
+  public NoPubKeyDigestsRequestElement(EbicsSession session, Configuration configuration) {
+    super(session, configuration);
   }
 
   /**
@@ -111,8 +112,8 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
     mutable = EbicsXmlFactory.createEmptyMutableHeaderType();
     header = EbicsXmlFactory.createDigestsRequestHeader(true, mutable, xstatic);
     body = EbicsXmlFactory.createDigestsRequestBody();
-    request = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequest(session.getConfiguration().getRevision(),
-	                                                        session.getConfiguration().getVersion(),
+    request = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequest(this.configuration.getRevision(),
+	                                                        this.configuration.getVersion(),
 	                                                        header,
 	                                                        body);
     document = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequestDocument(request);

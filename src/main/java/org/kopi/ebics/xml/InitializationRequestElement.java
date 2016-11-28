@@ -29,6 +29,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.EbicsRequestDocument;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
@@ -52,12 +53,13 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
    * @param name the element name.
    * @throws EbicsException
    */
-  public InitializationRequestElement(EbicsSession session,
+  public InitializationRequestElement(EbicsSession session, 
+		  							  Configuration configuration,
                                       OrderType type,
                                       String name)
     throws EbicsException
   {
-    super(session);
+    super(session, configuration);
     this.type = type;
     this.name = name;
     nonce = Utils.generateNonce();

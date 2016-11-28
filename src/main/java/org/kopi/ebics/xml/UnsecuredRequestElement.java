@@ -20,6 +20,7 @@
 package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.EmptyMutableHeaderType;
 import org.kopi.ebics.schema.h003.OrderDetailsType;
 import org.kopi.ebics.schema.h003.ProductElementType;
@@ -47,12 +48,13 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
    * @param orderType the order type (INI | HIA).
    * @param orderId the order id, if null a random one is generated.
    */
-  public UnsecuredRequestElement(EbicsSession session,
+  public UnsecuredRequestElement(EbicsSession session, 
+		  						 Configuration configuration,
                                  OrderType orderType,
                                  String orderId,
                                  byte[] orderData)
   {
-    super(session);
+    super(session, configuration);
     this.orderType = orderType;
     this.orderId = orderId;
     this.orderData = orderData;
@@ -94,8 +96,8 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
     body = EbicsXmlFactory.createBody(dataTransfer);
     request = EbicsXmlFactory.createEbicsUnsecuredRequest(header,
 	                                                  body,
-	                                                  session.getConfiguration().getRevision(),
-	                                                  session.getConfiguration().getVersion());
+	                                                  this.configuration.getRevision(),
+	                                                  this.configuration.getVersion());
 
     document = EbicsXmlFactory.createEbicsUnsecuredRequestDocument(request);
   }

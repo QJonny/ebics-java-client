@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.FDLOrderParamsType;
 import org.kopi.ebics.schema.h003.FileFormatType;
 import org.kopi.ebics.schema.h003.MutableHeaderType;
@@ -60,13 +61,14 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
    * @param endRange the end range download
    * @throws EbicsException
    */
-  public DownloadInitializationRequestElement(EbicsSession session,
+  public DownloadInitializationRequestElement(EbicsSession session, 
+		  							   Configuration configuration,
                                        org.kopi.ebics.session.OrderType type,
                                        Date startRange,
                                        Date endRange)
     throws EbicsException
   {
-    super(session, type, generateName(type));
+    super(session, configuration, type, generateName(type));
     this.startRange = startRange;
     this.endRange = endRange;
   }
@@ -87,10 +89,10 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
 
     mutable = EbicsXmlFactory.createMutableHeaderType("Initialisation", null);
     product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(), session.getProduct().getName());
-    authentication = EbicsXmlFactory.createAuthentication(session.getConfiguration().getAuthenticationVersion(),
+    authentication = EbicsXmlFactory.createAuthentication(this.configuration.getAuthenticationVersion(),
 	                                                  "http://www.w3.org/2001/04/xmlenc#sha256",
 	                                                  decodeHex(session.getBank().getX002Digest()));
-    encryption = EbicsXmlFactory.createEncryption(session.getConfiguration().getEncryptionVersion(),
+    encryption = EbicsXmlFactory.createEncryption(this.configuration.getEncryptionVersion(),
 	                                          "http://www.w3.org/2001/04/xmlenc#sha256",
 	                                          decodeHex(session.getBank().getE002Digest()));
     bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
@@ -99,7 +101,7 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
       FDLOrderParamsType		fDLOrderParamsType;
       FileFormatType 			fileFormat;
 
-      fileFormat = EbicsXmlFactory.createFileFormatType(session.getConfiguration().getLocale().getCountry().toUpperCase(),
+      fileFormat = EbicsXmlFactory.createFileFormatType(this.configuration.getLocale().getCountry().toUpperCase(),
 	                                                session.getSessionParam("FORMAT"));
       fDLOrderParamsType = EbicsXmlFactory.createFDLOrderParamsType(fileFormat);
 
@@ -143,8 +145,8 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
                                                      bankPubKeyDigests);
     header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
     body = EbicsXmlFactory.createEbicsRequestBody();
-    request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-                                                 session.getConfiguration().getVersion(),
+    request = EbicsXmlFactory.createEbicsRequest(this.configuration.getRevision(),
+                                                 this.configuration.getVersion(),
                                                  header,
                                                  body);
     document = EbicsXmlFactory.createEbicsRequestDocument(request);

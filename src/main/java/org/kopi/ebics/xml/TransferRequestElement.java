@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.EbicsRequestDocument;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
@@ -48,14 +49,15 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
    * @param lastSegment is it the last segment?
    * @param transactionID the transaction ID
    */
-  public TransferRequestElement(EbicsSession session,
+  public TransferRequestElement(EbicsSession session, 
+		  						Configuration configuration,
                                 String name,
                                 OrderType type,
                                 int segmentNumber,
                                 boolean lastSegment,
                                 byte[] transactionId)
   {
-    super(session);
+    super(session, configuration);
     this.type = type;
     this.name = name;
     this.segmentNumber = segmentNumber;

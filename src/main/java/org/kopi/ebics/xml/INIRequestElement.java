@@ -20,6 +20,7 @@
 package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
+import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.utils.Utils;
@@ -38,8 +39,8 @@ public class INIRequestElement extends DefaultEbicsRootElement {
    * @param session the ebics session.
    * @param orderId the order id, if null a random one is generated.
    */
-  public INIRequestElement(EbicsSession session, String orderId) {
-    super(session);
+  public INIRequestElement(EbicsSession session, Configuration configuration, String orderId) {
+    super(session, configuration);
     this.orderId = orderId;
   }
 
@@ -52,9 +53,10 @@ public class INIRequestElement extends DefaultEbicsRootElement {
   public void build() throws EbicsException {
     SignaturePubKeyOrderDataElement		signaturePubKey;
 
-    signaturePubKey = new SignaturePubKeyOrderDataElement(session);
+    signaturePubKey = new SignaturePubKeyOrderDataElement(session, this.configuration);
     signaturePubKey.build();
     unsecuredRequest = new UnsecuredRequestElement(session,
+    										   this.configuration,
 	                                           OrderType.INI,
 	                                           orderId == null ? session.getPartner().nextOrderId() : orderId,
 	                                           Utils.zip(signaturePubKey.prettyPrint()));
