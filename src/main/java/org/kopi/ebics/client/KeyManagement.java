@@ -35,6 +35,7 @@ import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.io.ByteArrayContentFactory;
 import org.kopi.ebics.session.EbicsSession;
+import org.kopi.ebics.session.Product;
 import org.kopi.ebics.utils.Utils;
 import org.kopi.ebics.xml.HIARequestElement;
 import org.kopi.ebics.xml.HPBRequestElement;
@@ -63,9 +64,10 @@ public class KeyManagement {
 	 * @param session
 	 *            the ebics session
 	 */
-	public KeyManagement(EbicsSession session, Configuration configuration) {
+	public KeyManagement(EbicsSession session, Configuration configuration, Product product) {
 		this.session = session;
 		this.configuration = configuration;
+		this.product = product;
 	}
 
 	/**
@@ -86,7 +88,7 @@ public class KeyManagement {
 		int httpCode;
 
 		sender = new HttpRequestSender(session, this.configuration);
-		request = new INIRequestElement(session, this.configuration, orderId);
+		request = new INIRequestElement(session, this.configuration, this.product, orderId);
 		request.build();
 		request.validate();
 		this.configuration.getTraceManager().trace(request);
@@ -115,7 +117,7 @@ public class KeyManagement {
 		int httpCode;
 
 		sender = new HttpRequestSender(session, this.configuration);
-		request = new HIARequestElement(session, this.configuration, orderId);
+		request = new HIARequestElement(session, this.configuration, this.product, orderId);
 		request.build();
 		request.validate();
 		this.configuration.getTraceManager().trace(request);
@@ -153,7 +155,7 @@ public class KeyManagement {
 		ByteArrayOutputStream updateKeyStoreStream = new ByteArrayOutputStream();
 
 		sender = new HttpRequestSender(session, this.configuration);
-		request = new HPBRequestElement(session, this.configuration);
+		request = new HPBRequestElement(session, this.configuration, this.product);
 
 		request.build();
 		request.validate();
@@ -215,7 +217,7 @@ public class KeyManagement {
 		int httpCode;
 
 		sender = new HttpRequestSender(session, this.configuration);
-		request = new SPRRequestElement(session, this.configuration);
+		request = new SPRRequestElement(session, this.configuration, this.product);
 		request.build();
 		request.validate();
 		this.configuration.getTraceManager().trace(request);
@@ -233,4 +235,5 @@ public class KeyManagement {
 
 	private EbicsSession session;
 	private Configuration configuration;
+	private Product product;
 }

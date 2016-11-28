@@ -33,6 +33,7 @@ import org.kopi.ebics.io.Joiner;
 import org.kopi.ebics.messages.Messages;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
+import org.kopi.ebics.session.Product;
 import org.kopi.ebics.utils.Constants;
 import org.kopi.ebics.utils.Utils;
 import org.kopi.ebics.xml.DefaultEbicsRootElement;
@@ -84,9 +85,10 @@ public class FileTransfer {
    * Constructs a new FileTransfer session
    * @param session the user session
    */
-  public FileTransfer(EbicsSession session, Configuration configuration) {
+  public FileTransfer(EbicsSession session, Configuration configuration, Product product) {
     this.session = session;
     this.configuration = configuration;
+    this.product = product;
   }
 
   /**
@@ -102,6 +104,7 @@ public class FileTransfer {
     HttpRequestSender sender = new HttpRequestSender(session, this.configuration);
     UploadInitializationRequestElement initializer = new UploadInitializationRequestElement(session,
     		 									this.configuration,
+    		 									this.product,
 	                                            orderType, orderAttribute,
 	                                            content);
     initializer.build();
@@ -151,6 +154,7 @@ public class FileTransfer {
 
     uploader = new UploadTransferRequestElement(session,
     		 						   this.configuration,
+    		 						   this.product,
 	                                   orderType,
 	                                   segmentNumber,
 	                                   lastSegment,
@@ -198,6 +202,7 @@ public class FileTransfer {
     sender = new HttpRequestSender(session, this.configuration);
     initializer = new DownloadInitializationRequestElement(session,
     		 									this.configuration,
+    		 									this.product,
 	                                            orderType,
 	                                            start,
 	                                            end);
@@ -233,6 +238,7 @@ public class FileTransfer {
     joiner.writeTo(dest, response.getTransactionKey());
     receipt = new ReceiptRequestElement(session, 
     								this.configuration,
+    								this.product,
 	                                state.getTransactionId(),
 	                                DefaultEbicsRootElement.generateName(orderType));
     receipt.build();
@@ -274,6 +280,7 @@ public class FileTransfer {
     sender = new HttpRequestSender(session, this.configuration);
     downloader = new DownloadTransferRequestElement(session,
     		 							 this.configuration,
+    		 							 this.product,
 	                                     orderType,
 	                                     segmentNumber,
 	                                     lastSegment,
@@ -298,4 +305,5 @@ public class FileTransfer {
 
   private EbicsSession			session;
   private Configuration			configuration;
+  private Product				product;
 }

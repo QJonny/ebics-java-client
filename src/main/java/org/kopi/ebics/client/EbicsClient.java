@@ -97,7 +97,6 @@ public class EbicsClient {
     	}
     	
         EbicsSession session = new EbicsSession(user, partner, bank);
-        session.setProduct(this.defaultProduct);
         return session;
     }
 
@@ -226,7 +225,7 @@ public class EbicsClient {
      * @throws Exception
      */
     public void sendINIRequest(EbicsSession session) throws Exception {
-        KeyManagement keyManager = new KeyManagement(session, this.configuration);
+        KeyManagement keyManager = new KeyManagement(session, this.configuration, this.defaultProduct);
         keyManager.sendINI(null);
     }
 
@@ -240,7 +239,7 @@ public class EbicsClient {
      * @throws Exception
      */
     public void sendHIARequest(EbicsSession session) throws Exception {
-        KeyManagement keyManager = new KeyManagement(session, this.configuration);
+        KeyManagement keyManager = new KeyManagement(session, this.configuration, this.defaultProduct);
         keyManager.sendHIA(null);
     }
 
@@ -248,7 +247,7 @@ public class EbicsClient {
      * Sends a HPB request to the ebics server.
      */
     public byte[] sendHPBRequest(EbicsSession session) throws Exception {
-        KeyManagement keyManager = new KeyManagement(session, this.configuration);
+        KeyManagement keyManager = new KeyManagement(session, this.configuration, this.defaultProduct);
         User user = (User) session.getUser();
 
         byte[] updatedKeyStore = keyManager.sendHPB(user.exportKeyStore()); // exportKeyStore??
@@ -266,7 +265,7 @@ public class EbicsClient {
      * @throws Exception
      */
     public void revokeSubscriber(EbicsSession session) throws Exception {
-        KeyManagement keyManager = new KeyManagement(session, this.configuration);
+        KeyManagement keyManager = new KeyManagement(session, this.configuration, this.defaultProduct);
         keyManager.lockAccess();
     }
 
@@ -287,7 +286,7 @@ public class EbicsClient {
             session.addSessionParam("FORMAT", format);
         }
 
-        FileTransfer transferManager = new FileTransfer(session, this.configuration);
+        FileTransfer transferManager = new FileTransfer(session, this.configuration, this.defaultProduct);
         transferManager.sendFile(fileContent, orderType, orderAttribute);
     }
 
@@ -299,7 +298,7 @@ public class EbicsClient {
             session.addSessionParam("TEST", "true");
         }
         
-        transferManager = new FileTransfer(session, this.configuration);
+        transferManager = new FileTransfer(session, this.configuration, this.defaultProduct);
         return transferManager.fetchFile(orderType, start, end);
     }
 
