@@ -33,6 +33,7 @@ import org.kopi.ebics.schema.h003.MutableHeaderType.SegmentNumber;
 import org.kopi.ebics.schema.h003.StaticHeaderType;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
+import org.kopi.ebics.session.Product;
 
 /**
  * The <code>UTransferRequestElement</code> is the root element
@@ -54,13 +55,14 @@ public class UploadTransferRequestElement extends TransferRequestElement {
    */
   public UploadTransferRequestElement(EbicsSession session, 
 		  						 Configuration configuration,
+		  						 Product product,
                                  OrderType orderType,
                                  int segmentNumber,
                                  boolean lastSegment,
                                  byte[] transactionId,
                                  ContentFactory content)
   {
-    super(session, configuration, generateName(orderType), orderType, segmentNumber, lastSegment, transactionId);
+    super(session, configuration, product, generateName(orderType), orderType, segmentNumber, lastSegment, transactionId);
     this.content = content;
   }
 

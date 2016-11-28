@@ -29,6 +29,7 @@ import org.kopi.ebics.schema.h003.PubKeyValueType;
 import org.kopi.ebics.schema.xmldsig.RSAKeyValueType;
 import org.kopi.ebics.schema.xmldsig.X509DataType;
 import org.kopi.ebics.session.EbicsSession;
+import org.kopi.ebics.session.Product;
 
 
 /**
@@ -45,8 +46,8 @@ public class HIARequestOrderDataElement extends DefaultEbicsRootElement {
    * Constructs a new HIA Request Order Data element
    * @param session the current ebics session
    */
-  public HIARequestOrderDataElement(EbicsSession session, Configuration configuration) {
-    super(session, configuration);
+  public HIARequestOrderDataElement(EbicsSession session, Configuration configuration, Product product) {
+    super(session, configuration, product);
   }
 
   @Override

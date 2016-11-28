@@ -63,12 +63,13 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
    */
   public DownloadInitializationRequestElement(EbicsSession session, 
 		  							   Configuration configuration,
+		  							   org.kopi.ebics.session.Product product,
                                        org.kopi.ebics.session.OrderType type,
                                        Date startRange,
                                        Date endRange)
     throws EbicsException
   {
-    super(session, configuration, type, generateName(type));
+    super(session, configuration, product, type, generateName(type));
     this.startRange = startRange;
     this.endRange = endRange;
   }
@@ -88,7 +89,7 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
     StaticHeaderOrderDetailsType 	orderDetails;
 
     mutable = EbicsXmlFactory.createMutableHeaderType("Initialisation", null);
-    product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(), session.getProduct().getName());
+    product = EbicsXmlFactory.createProduct(this.product.getLanguage(), this.product.getName());
     authentication = EbicsXmlFactory.createAuthentication(this.configuration.getAuthenticationVersion(),
 	                                                  "http://www.w3.org/2001/04/xmlenc#sha256",
 	                                                  decodeHex(session.getBank().getX002Digest()));

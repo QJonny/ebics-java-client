@@ -28,6 +28,7 @@ import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.EbicsRequestDocument;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
+import org.kopi.ebics.session.Product;
 import org.kopi.ebics.utils.Utils;
 
 
@@ -51,13 +52,14 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
    */
   public TransferRequestElement(EbicsSession session, 
 		  						Configuration configuration,
+		  						Product product,
                                 String name,
                                 OrderType type,
                                 int segmentNumber,
                                 boolean lastSegment,
                                 byte[] transactionId)
   {
-    super(session, configuration);
+    super(session, configuration, product);
     this.type = type;
     this.name = name;
     this.segmentNumber = segmentNumber;

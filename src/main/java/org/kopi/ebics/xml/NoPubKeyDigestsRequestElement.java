@@ -37,6 +37,7 @@ import org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPub
 import org.kopi.ebics.schema.xmldsig.SignatureType;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
+import org.kopi.ebics.session.Product;
 import org.kopi.ebics.utils.Utils;
 
 /**
@@ -52,8 +53,8 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
    * Construct a new No Public Key Digests Request element.
    * @param session the current ebics session.
    */
-  public NoPubKeyDigestsRequestElement(EbicsSession session, Configuration configuration) {
-    super(session, configuration);
+  public NoPubKeyDigestsRequestElement(EbicsSession session, Configuration configuration, Product product) {
+    super(session, configuration, product);
   }
 
   /**
@@ -99,7 +100,7 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
     ProductElementType 				product;
     OrderDetailsType 				orderDetails;
 
-    product = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(), session.getProduct().getName());
+    product = EbicsXmlFactory.creatProductElementType(this.product.getLanguage(), this.product.getName());
     orderDetails = EbicsXmlFactory.createOrderDetailsType("DZHNN", null, OrderType.HPB.toString());
     xstatic = EbicsXmlFactory.createNoPubKeyDigestsRequestStaticHeaderType(session.getBankID(),
 	                                                                   Utils.generateNonce(),

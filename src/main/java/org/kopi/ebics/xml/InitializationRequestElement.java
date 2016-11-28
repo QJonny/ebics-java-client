@@ -33,6 +33,7 @@ import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.schema.h003.EbicsRequestDocument;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
+import org.kopi.ebics.session.Product;
 import org.kopi.ebics.utils.Utils;
 
 
@@ -55,11 +56,12 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
    */
   public InitializationRequestElement(EbicsSession session, 
 		  							  Configuration configuration,
+		  							  Product product,
                                       OrderType type,
                                       String name)
     throws EbicsException
   {
-    super(session, configuration);
+    super(session, configuration, product);
     this.type = type;
     this.name = name;
     nonce = Utils.generateNonce();

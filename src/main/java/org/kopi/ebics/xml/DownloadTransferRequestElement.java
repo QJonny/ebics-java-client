@@ -29,6 +29,7 @@ import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header;
 import org.kopi.ebics.schema.h003.MutableHeaderType.SegmentNumber;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
+import org.kopi.ebics.session.Product;
 
 /**
  * The <code>DTransferRequestElement</code> is the common elements
@@ -49,12 +50,13 @@ public class DownloadTransferRequestElement extends TransferRequestElement {
    */
   public DownloadTransferRequestElement(EbicsSession session, 
 		  						 Configuration configuration,
+		  						 Product product,
                                  OrderType type,
                                  int segmentNumber,
                                  boolean lastSegment,
                                  byte[] transactionId)
   {
-    super(session, configuration, generateName(type), type, segmentNumber, lastSegment, transactionId);
+    super(session, configuration, product, generateName(type), type, segmentNumber, lastSegment, transactionId);
   }
 
   @Override

@@ -33,6 +33,7 @@ import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body;
 import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header;
 import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body.TransferReceipt;
 import org.kopi.ebics.session.EbicsSession;
+import org.kopi.ebics.session.Product;
 import org.kopi.ebics.utils.Utils;
 
 
@@ -52,10 +53,11 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
    */
   public ReceiptRequestElement(EbicsSession session, 
 		  					   Configuration configuration,
+		  					   Product product,
                                byte[] transactionId,
                                String name)
   {
-    super(session, configuration);
+    super(session, configuration, product);
     this.transactionId = transactionId;
     this.name = name;
   }

@@ -32,6 +32,7 @@ import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRe
 import org.kopi.ebics.schema.h003.EbicsUnsecuredRequestDocument.EbicsUnsecuredRequest.Body.DataTransfer.OrderData;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
+import org.kopi.ebics.session.Product;
 
 /**
  * The <code>UnsecuredRequestElement</code> is the common element
@@ -50,11 +51,12 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
    */
   public UnsecuredRequestElement(EbicsSession session, 
 		  						 Configuration configuration,
+		  						 Product product,
                                  OrderType orderType,
                                  String orderId,
                                  byte[] orderData)
   {
-    super(session, configuration);
+    super(session, configuration,product);
     this.orderType = orderType;
     this.orderId = orderId;
     this.orderData = orderData;
@@ -76,8 +78,8 @@ public class UnsecuredRequestElement extends DefaultEbicsRootElement {
 						          orderId == null ? session.getPartner().nextOrderId() : orderId,
 	                                                  orderType.toString());
 
-    productType = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(),
-	                                                  session.getProduct().getName());
+    productType = EbicsXmlFactory.creatProductElementType(this.product.getLanguage(),
+	                                                  this.product.getName());
 
     xstatic = EbicsXmlFactory.createUnsecuredRequestStaticHeaderType(session.getBankID(),
 								     session.getPartner().getPartnerId(),

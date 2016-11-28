@@ -58,8 +58,8 @@ public class SPRRequestElement extends InitializationRequestElement {
    * Constructs a new SPR request element.
    * @param session the current ebic session.
    */
-  public SPRRequestElement(EbicsSession session, Configuration configuration) throws EbicsException {
-    super(session, configuration, org.kopi.ebics.session.OrderType.SPR, "SPRRequest.xml");
+  public SPRRequestElement(EbicsSession session, Configuration configuration, org.kopi.ebics.session.Product product) throws EbicsException {
+    super(session, configuration, product, org.kopi.ebics.session.OrderType.SPR, "SPRRequest.xml");
     keySpec = new SecretKeySpec(nonce, "EAS");
   }
 
@@ -92,7 +92,7 @@ public class SPRRequestElement extends InitializationRequestElement {
     userSignature.validate();
 
     mutable = EbicsXmlFactory.createMutableHeaderType("Initialisation", null);
-    product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(), session.getProduct().getName());
+    product = EbicsXmlFactory.createProduct(this.product.getLanguage(), this.product.getName());
     authentication = EbicsXmlFactory.createAuthentication(this.configuration.getAuthenticationVersion(),
 	                                                  "http://www.w3.org/2001/04/xmlenc#sha256",
 	                                                  decodeHex(session.getBank().getX002Digest()));

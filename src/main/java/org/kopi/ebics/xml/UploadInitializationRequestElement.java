@@ -72,11 +72,12 @@ public class UploadInitializationRequestElement extends InitializationRequestEle
    */
   public UploadInitializationRequestElement(EbicsSession session, 
 		  							   Configuration configuration,
+		  							   org.kopi.ebics.session.Product product,
                                        org.kopi.ebics.session.OrderType orderType, String orderAttribute,
                                        byte[] userData)
     throws EbicsException
   {
-    super(session, configuration, orderType, generateName(orderType));
+    super(session, configuration, product, orderType, generateName(orderType));
     this.userData = userData;
     keySpec = new SecretKeySpec(nonce, "EAS");
     splitter = new Splitter(userData);
@@ -112,7 +113,7 @@ public class UploadInitializationRequestElement extends InitializationRequestEle
     splitter.readInput(this.configuration.isCompressionEnabled(), keySpec);
 
     mutable = EbicsXmlFactory.createMutableHeaderType("Initialisation", null);
-    product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(), session.getProduct().getName());
+    product = EbicsXmlFactory.createProduct(this.product.getLanguage(), this.product.getName());
     authentication = EbicsXmlFactory.createAuthentication(this.configuration.getAuthenticationVersion(),
 	                                                  "http://www.w3.org/2001/04/xmlenc#sha256",
 	                                                  decodeHex(session.getBank().getX002Digest()));
