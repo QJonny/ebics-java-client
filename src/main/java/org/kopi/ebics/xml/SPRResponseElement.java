@@ -19,10 +19,14 @@
 
 package org.kopi.ebics.xml;
 
+import java.io.IOException;
+
+import org.apache.xmlbeans.XmlException;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.schema.h003.EbicsResponseDocument;
+import org.kopi.ebics.schema.h003.HPBResponseOrderDataDocument;
 import org.kopi.ebics.schema.h003.EbicsResponseDocument.EbicsResponse;
 
 /**
@@ -48,7 +52,12 @@ public class SPRResponseElement extends DefaultResponseElement {
     String			text;
 
     parse(factory);
-    response = ((EbicsResponseDocument)document).getEbicsResponse();
+    try {
+    	response = EbicsResponseDocument.Factory.parse(factory.getContent()).getEbicsResponse();
+	} catch (XmlException | IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     code = response.getHeader().getMutable().getReturnCode();
     text = response.getHeader().getMutable().getReportText();
     returnCode = ReturnCode.toReturnCode(code, text);
