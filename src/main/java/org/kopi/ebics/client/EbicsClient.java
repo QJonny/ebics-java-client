@@ -246,13 +246,22 @@ public class EbicsClient {
     /**
      * Sends a HPB request to the ebics server.
      */
-    public byte[] sendHPBRequest(EbicsSession session) throws Exception {
+    public HPBResult sendHPBRequest(EbicsSession session) throws Exception {
         KeyManagement keyManager = new KeyManagement(session, this.configuration, this.defaultProduct);
         User user = (User) session.getUser();
 
         byte[] updatedKeyStore = keyManager.sendHPB(user.exportKeyStore()); // exportKeyStore??
 
-        return updatedKeyStore;
+        
+        BankKeys bankKeys = null;
+    	Bank bank = (Bank) session.getBank();
+    	
+    	if (bank.getE002Key() != null && bank.getX002Key() != null) {
+    		bankKeys = new BankKeys(bank.getHostId(), bank.getE002Key().getEncoded(), bank.getX002Key().getEncoded());
+    	}
+    	
+ 
+    	return new HPBResult(bankKeys, updatedKeyStore);
     }
 
     /**
