@@ -21,8 +21,10 @@ package org.kopi.ebics.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.ParseException;
@@ -210,6 +212,15 @@ public class Utils {
         output.write(canonicalizer.canonicalizeSubtree(node));
       }
 
+      try {
+			FileOutputStream fos = new FileOutputStream("C:\\Users\\CGU\\Desktop\\utilsCanonize");
+			fos.write(output.toByteArray());
+		  	fos.close(); 
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+		  	e.printStackTrace();
+		}
+      
       return output.toByteArray();
     } catch (Exception e) {
       throw new EbicsException(e.getMessage());

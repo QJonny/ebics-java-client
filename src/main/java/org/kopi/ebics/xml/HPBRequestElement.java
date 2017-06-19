@@ -19,6 +19,8 @@
 
 package org.kopi.ebics.xml;
 
+import java.io.FileOutputStream;
+
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.session.EbicsSession;
@@ -53,11 +55,50 @@ public class HPBRequestElement extends DefaultEbicsRootElement {
 
     noPubKeyDigestsRequest = new NoPubKeyDigestsRequestElement(session, this.configuration, this.product);
     noPubKeyDigestsRequest.build();
+    
+    try {
+      FileOutputStream fos = new FileOutputStream("C:\\Users\\CGU\\Desktop\\afterBuid");
+	  fos.write(noPubKeyDigestsRequest.toByteArray());
+	  fos.close(); 
+    } catch (Exception e) {
+    	// TODO Auto-generated catch block
+    	e.printStackTrace();
+	}
+    
     signedInfo = new SignedInfo(session.getUser(), noPubKeyDigestsRequest.getDigest());
     signedInfo.build();
+    
+    try {
+        FileOutputStream fos = new FileOutputStream("C:\\Users\\CGU\\Desktop\\signedBuild");
+  	  fos.write(signedInfo.toByteArray());
+  	  fos.close(); 
+      } catch (Exception e) {
+      	// TODO Auto-generated catch block
+      	e.printStackTrace();
+  	}
+    
     noPubKeyDigestsRequest.setAuthSignature(signedInfo.getSignatureType());
+    
+    try {
+        FileOutputStream fos = new FileOutputStream("C:\\Users\\CGU\\Desktop\\postSetAuth");
+  	  fos.write(noPubKeyDigestsRequest.toByteArray());
+  	  fos.close(); 
+      } catch (Exception e) {
+      	// TODO Auto-generated catch block
+      	e.printStackTrace();
+  	}
+    
     signature = signedInfo.sign(noPubKeyDigestsRequest.toByteArray());
     noPubKeyDigestsRequest.setSignatureValue(signature);
+    
+    try {
+        FileOutputStream fos = new FileOutputStream("C:\\Users\\CGU\\Desktop\\final");
+  	  fos.write(noPubKeyDigestsRequest.toByteArray());
+  	  fos.close(); 
+      } catch (Exception e) {
+      	// TODO Auto-generated catch block
+      	e.printStackTrace();
+  	}
   }
 
   @Override

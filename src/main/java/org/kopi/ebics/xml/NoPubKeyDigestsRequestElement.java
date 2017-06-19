@@ -19,6 +19,7 @@
 
 package org.kopi.ebics.xml;
 
+import java.io.FileOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -66,6 +67,14 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
     addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
 
     try {
+		try {
+			FileOutputStream fos = new FileOutputStream("C:\\Users\\CGU\\Desktop\\digest");
+			fos.write(MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray())));
+		  	fos.close(); 
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+		  	e.printStackTrace();
+		}
       return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
     } catch (NoSuchAlgorithmException e) {
       throw new EbicsException(e.getMessage());
