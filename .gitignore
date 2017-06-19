@@ -1,4 +1,5 @@
-/target/
+/target/*
+!/target/generated-sources/
 /bin/
 .classpath
 .project
